@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoDoc - Записи на {{ day }} {{ month_name }} {{ year }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+
+         /* Добавляем новые стили для исполнителя работы */
+        .work-employee {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-left: 0.5rem;
+            font-style: italic;
+        }
+
+        .work-employee-select {
+            min-width: 200px;
+            margin-left: 0.5rem;
+        }
+
+        /* Адаптация для мобильных устройств */
+        @media (max-width: 768px) {
+            .work-employee-select {
+                min-width: 150px;
+            }
+        }
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+            --warning-color: #ffc107;
+            --danger-color: #ff3333;
+        }
+        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0; color: var(--dark-color); }
+        .assignment-container { width: 100%; margin: 0; background: white; border-radius: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); padding: 2.5rem; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; padding: 0 2.5rem; }
+        .page-title { color: var(--primary-color); font-size: 2.2rem; font-weight: 700; margin: 0; }
+        .btn { border-radius: 50px; padding: 0.7rem 1.5rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-primary { background: var(--primary-color); border: none; }
+        .btn-primary:hover { background: var(--secondary-color); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+        .btn-secondary { background: #6c757d; border: none; }
+        .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
+        .columns-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; padding: 0 2.5rem; }
+        .employee-column { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.03); transition: all 0.3s ease; }
+        .employee-column:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .employee-header { font-size: 1.2rem; color: var(--primary-color); font-weight: 600; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.05); padding-bottom: 0.5rem; }
+        .assignment-card { background: white; border-radius: 15px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.03); transition: all 0.3s ease; }
+        .assignment-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .assignment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+        .car-info { font-size: 1.5rem; font-weight: 700; color: var(--dark-color); }
+        .car-info span { margin-right: 0.5rem; }
+        .assignment-time { font-size: 1.3rem; color: var(--primary-color); font-weight: 600; text-align: center; flex-grow: 1; }
+        .assignment-details { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+        .detail-item { display: flex; flex-direction: column; }
+        .detail-label { font-size: 0.8rem; color: #6c757d; margin-bottom: 0.3rem; }
+        .detail-value { font-weight: 600; color: var(--dark-color); }
+        .work-list { list-style: none; padding: 0; margin: 1rem 0 0 0; }
+        .work-item { background: rgba(248, 249, 250, 0.7); border-radius: 10px; padding: 1rem; margin-bottom: 0.7rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; transition: background-color 0.3s ease; }
+        .work-item.completed { background-color: rgba(75, 181, 67, 0.2); }
+        .work-info { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .work-status { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--warning-color); }
+        .work-status.completed { background: var(--success-color); }
+        .custom-checkbox { transform: scale(1.5); margin-right: 1rem; }
+        .no-assignments { text-align: center; padding: 2rem; color: #6c757d; font-size: 1.1rem; }
+        .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+        .modal-header { background: var(--primary-color); color: white; border-bottom: none; padding: 1.5rem; }
+        .modal-title { font-weight: 700; }
+        .modal-body { padding: 1.5rem; }
+        .form-label { font-weight: 600; color: var(--dark-color); margin-bottom: 0.5rem; }
+        .form-control, .form-select { border-radius: 10px; padding: 0.7rem 1rem; border: 1px solid #dee2e6; }
+        .form-control:focus, .form-select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25); }
+        .add-work-btn { background: var(--accent-color); border: none; }
+        .add-work-btn:hover { background: #3ab7dc; }
+        .work-input-group { display: flex; gap: 0.5rem; }
+        .remove-work-btn { background: var(--danger-color); border: none; width: 40px; display: flex; align-items: center; justify-content: center; }
+        .time-picker { display: flex; gap: 0.5rem; }
+        @media (max-width: 768px) { .assignment-container { padding: 1.5rem; } .page-title { font-size: 1.8rem; } .columns-container { grid-template-columns: 1fr; padding: 0 1.5rem; } .employee-column { margin-bottom: 1.5rem; } .page-header { padding: 0 1.5rem; } .modal-header { padding: 1rem; } .modal-body { padding: 1rem; } }
+    </style>
+</head>
+<body>
+    <div class="assignment-container">
+        <div class="page-header">
+            <h1 class="page-title">Записи на {{ day }} {{ month_name }} {{ year }}</h1>
+            <div>
+                <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#createAssignmentModal">
+                    <i class="fas fa-plus"></i> Новая запись
+                </button>
+                <a href="{% url 'AutoDoc:calendar' %}" class="btn btn-secondary">
+                    <i class="fas fa-calendar"></i> Календарь
+                </a>
+            </div>
+        </div>
+
+        {% if assignments %}
+            <div class="columns-container">
+                {% for assignment_group in assignments %}
+                    <div class="employee-column">
+                        <div class="employee-header">{{ assignment_group.person_name|default:'Не указан' }}</div>
+                        {% for assignment in assignment_group.assignments %}
+                            <div class="assignment-card">
+                                <div class="assignment-header">
+                                    <div class="car-info">
+                                        <span>{{ assignment.car_name }}</span>
+                                        {% if assignment.car_number %}<span>({{ assignment.car_number }})</span>{% endif %}
+                                    </div>
+                                    <div class="assignment-time">{{ assignment.time }}</div>
+                                    <div style="width: 0;"></div> <!-- Пустой элемент для выравнивания -->
+                                </div>
+
+                                <div class="assignment-details">
+                                    <div class="detail-item">
+                                        <span class="detail-label">VIN</span>
+                                        <span class="detail-value">{{ assignment.vin }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Цвет</span>
+                                        <span class="detail-value">{{ assignment.color_name }}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">Сотрудник</span>
+                                        <span class="detail-value">{{ assignment_group.person_name|default:'Не указан' }}</span>
+                                    </div>
+                                    {% if assignment.description %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">Описание</span>
+                                        <span class="detail-value">{{ assignment.description }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <h6 class="mt-3 mb-2" style="color: var(--primary-color); font-weight: 600;">
+                                    <i class="fas fa-tasks me-2"></i>Работы:
+                                </h6>
+
+                                <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
+                                    <ul class="work-list">
+                                      {% for work in assignment.works %}
+                                        <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
+                                            <div class="work-info">
+                                                <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                       id="work_{{ assignment.id }}_{{ work.work_id }}"
+                                                       name="work_status" value="{{ work.work_id }}"
+                                                       {% if work.status %}checked{% endif %}>
+                                                <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
+                                                    <span class="work-status {% if work.status %}completed{% endif %}"></span>
+                                                    <strong>{{ work.work_name }}</strong>
+
+                                                </label>
+                                            </div>
+                                            {% if work.employee_name %}
+                                                <strong class="text-muted">({{ work.employee_name }})</strong>
+                                            {% endif %}
+<!--                                            <span class="text-muted">ID: {{ work.work_id }}</span>-->
+                                        </li>
+                                        {% empty %}
+                                        <li class="text-muted">Нет работ</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <button type="button" class="btn btn-primary mt-2" onclick="saveWorkStatus({{ assignment.id }})">Сохранить</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-assignments">
+                <i class="fas fa-calendar-times fa-3x mb-3" style="color: #dee2e6;"></i>
+                <p>Нет записей на этот день</p>
+            </div>
+        {% endif %}
+
+        <!-- Отладочный вывод -->
+        <div style="display: none;">Debug: {{ assignments }}</div>
+    </div>
+
+    <div class="modal fade" id="createAssignmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createAssignmentModalLabel">
+                        <i class="fas fa-plus-circle me-2"></i>Новая запись
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createAssignmentForm" action="{% url 'AutoDoc:create_assignment' year=year month=month day=day %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="year" value="{{ year }}">
+                        <input type="hidden" name="month" value="{{ month }}">
+                        <input type="hidden" name="day" value="{{ day }}">
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="car_id" class="form-label">Машина</label>
+                                <input type="text" class="form-control" id="car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
+                                <datalist id="carOptions">
+                                    {% for car in cars %}
+                                        <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="car_number" class="form-label">Номер машины</label>
+                                <input type="text" class="form-control" id="car_number" name="car_number" placeholder="Введите номер машины">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="vin" class="form-label">VIN</label>
+                                <input type="text" class="form-control" id="vin" name="vin" placeholder="Введите VIN">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="color_id" class="form-label">Цвет</label>
+                                <input type="text" class="form-control" id="color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <datalist id="colorOptions">
+                                    {% for color in colors %}
+                                        <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="person_id" class="form-label">Сотрудник</label>
+                                <input type="text" class="form-control" id="person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
+                                <datalist id="personOptions">
+                                    {% for person in persons %}
+                                        <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="description" class="form-label">Описание</label>
+                                <input type="text" class="form-control" id="description" name="description" placeholder="Введите описание">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="time" class="form-label">Время</label>
+                                <div class="time-picker">
+                                    <select class="form-select" id="hour" name="hour">
+                                        {% for h in hours %}
+                                            <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-select" id="minute" name="minute">
+                                        {% for m in minutes %}
+                                            <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
+                            <i class="fas fa-tasks me-2"></i>Работы
+                        </h6>
+
+                       <div id="workItems">
+                            <div class="work-input-group mb-3">
+                                <div class="d-flex align-items-center gap-2 w-100">
+                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                    <select class="form-select work-employee-select" name="work_employees[]">
+                                        <option value="">Выберите сотрудника</option>
+                                        {% for person in persons %}
+                                            <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" class="btn btn-danger remove-work-btn" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <datalist id="workOptions">
+                            {% for work in works %}
+                                <option value="{{ work.name }}" data-id="{{ work.id }}"></option>
+                            {% endfor %}
+                        </datalist>
+
+                        <button type="button" class="btn add-work-btn mb-4" id="addWork">
+                            <i class="fas fa-plus me-2"></i>Добавить работу
+                        </button>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Создать запись</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let workCount = 1;
+            const addWorkButton = document.getElementById('addWork');
+            const workItems = document.getElementById('workItems');
+            const createForm = document.getElementById('createAssignmentForm');
+
+            // Функция для обновления data-id
+            function updateDataId(input) {
+                const datalistId = input.getAttribute('list');
+                if (!datalistId) return;
+
+                const datalist = document.getElementById(datalistId);
+                if (!datalist) return;
+
+                const options = datalist.querySelectorAll('option');
+                for (let option of options) {
+                    if (option.value === input.value) {
+                        input.setAttribute('data-id', option.getAttribute('data-id') || '');
+                        return;
+                    }
+                }
+                input.setAttribute('data-id', '');
+            }
+
+            // Инициализация обработчиков для полей с datalist
+            function initDatalistInputs() {
+                document.querySelectorAll('input[list]').forEach(input => {
+                    input.addEventListener('input', () => updateDataId(input));
+                    input.addEventListener('change', () => updateDataId(input));
+
+                    // Инициализация существующих значений
+                    if (input.value) {
+                        updateDataId(input);
+                    }
+                });
+            }
+
+            // Инициализация при загрузке
+            initDatalistInputs();
+
+            addWorkButton.addEventListener('click', function() {
+                if (workCount < 10) {
+                    const newWorkItem = document.createElement('div');
+                    newWorkItem.className = 'work-input-group mb-3';
+                    newWorkItem.innerHTML = `
+                        <div class="d-flex align-items-center gap-2 w-100">
+                            <input type="text" class="form-control" id="work_id_${workCount}"
+                                   name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                            <select class="form-select work-employee-select" name="work_employees[]">
+                                <option value="">Выберите сотрудника</option>
+                                {% for person in persons %}
+                                    <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-danger remove-work-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    workItems.appendChild(newWorkItem);
+                    workCount++;
+
+                    // Показываем кнопки удаления, если есть несколько работ
+                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+
+                    // Инициализация обработчиков для нового поля
+                    const newInput = document.getElementById(`work_id_${workCount-1}`);
+                    newInput.addEventListener('input', () => updateDataId(newInput));
+                    newInput.addEventListener('change', () => updateDataId(newInput));
+                } else {
+                    alert('Максимум 10 работ.');
+                }
+            });
+
+            workItems.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-work-btn')) {
+                    const workGroup = e.target.closest('.work-input-group');
+                    workGroup.remove();
+                    workCount--;
+
+                    // Скрываем кнопки удаления, если осталась только одна работа
+                    if (document.querySelectorAll('.work-input-group').length <= 1) {
+                        document.querySelectorAll('.remove-work-btn').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    }
+                }
+            });
+
+            createForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                // Собираем данные в правильном формате
+                const formData = {
+                    vin: document.getElementById('vin').value,
+                    car_id: document.getElementById('car_id').getAttribute('data-id') || null,
+                    car_number: document.getElementById('car_number').value,
+                    color_id: document.getElementById('color_id').getAttribute('data-id'),
+                    person_id: document.getElementById('person_id').getAttribute('data-id'),
+                    description: document.getElementById('description').value,
+                    hour: document.getElementById('hour').value,
+                    minute: document.getElementById('minute').value,
+                    works: []
+                };
+
+                // Проверка обязательных полей
+                if (!formData.color_id) {
+                    alert('Пожалуйста, выберите цвет из списка');
+                    return;
+                }
+
+                if (!formData.person_id) {
+                    alert('Пожалуйста, выберите сотрудника из списка');
+                    return;
+                }
+
+                // Собираем работы
+                const workInputs = document.querySelectorAll('input[name="work_ids[]"]');
+                const employeeSelects = document.querySelectorAll('select[name="work_employees[]"]');
+
+                workInputs.forEach((input, index) => {
+                    const workId = input.getAttribute('data-id');
+                    const employeeId = employeeSelects[index]?.value || null;
+
+                    if (workId) {
+                        formData.works.push({
+                            work_id: parseInt(workId),
+                            executor_id: employeeId ? parseInt(employeeId) : null
+                        });
+                    }
+                });
+
+                // Проверка, что есть хотя бы одна работа
+                if (formData.works.length === 0) {
+                    alert('Пожалуйста, добавьте хотя бы одну работу');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(createForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
+                        modal.hide();
+                        window.location.href = result.redirect_url || window.location.href;
+                    } else {
+                        alert(result.error || 'Произошла ошибка при создании записи');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
+                }
+
+
+            });
+
+            const modalElement = document.getElementById('createAssignmentModal');
+            if (modalElement) {
+                modalElement.addEventListener('hidden.bs.modal', function () {
+                    createForm.reset();
+                    workItems.innerHTML = `
+                        <div class="work-input-group mb-3">
+                            <div class="d-flex align-items-center gap-2 w-100">
+                                <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                <select class="form-select work-employee-select" name="work_employees[]">
+                                    <option value="">Выберите сотрудника</option>
+                                    {% for person in persons %}
+                                        <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="btn btn-danger remove-work-btn" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    workCount = 1;
+
+                    // Сброс data-id атрибутов
+                    document.getElementById('car_id').removeAttribute('data-id');
+                    document.getElementById('color_id').removeAttribute('data-id');
+                    document.getElementById('person_id').removeAttribute('data-id');
+
+                    // Повторная инициализация обработчиков
+                    initDatalistInputs();
+                });
+            }
+
+            // Функция для сохранения статуса работ
+            window.saveWorkStatus = function(assignmentId) {
+                const form = document.getElementById(`workStatusForm_${assignmentId}`);
+                const workStatuses = Array.from(form.querySelectorAll('input[name="work_status"]:checked'))
+                    .map(checkbox => ({ work_id: parseInt(checkbox.value), status: true }));
+                const uncheckedWorks = Array.from(form.querySelectorAll('input[name="work_status"]:not(:checked)'))
+                    .map(checkbox => ({ work_id: parseInt(checkbox.value), status: false }));
+
+                const updates = [...workStatuses, ...uncheckedWorks];
+
+                fetch(`/update-work-status/${assignmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ updates })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Статусы сохранены успешно');
+                        location.reload();
+                    } else {
+                        alert('Ошибка при сохранении статусов');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при сохранении');
+                });
+            };
+        });
+    </script>
+

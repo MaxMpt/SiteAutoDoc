@@ -1,0 +1,443 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AutoDoc - Календарь назначений</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --bg-light: #f8fafc;
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --today-bg: #fef3c7;
+            --today-text: #92400e;
+            --font-color: #1e293b;
+            --font-light: #64748b;
+            --border-radius: 10px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 1. Растягиваем на всю высоту */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: var(--bg-light);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--font-color);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. Контейнер занимает всю оставшуюся высоту */
+        body > .calendar-container {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 2rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        /* 3. Заголовок и форма — не растягиваем, фиксируем по высоте */
+        .calendar-header,
+        .date-selector,
+        .legend {
+            flex-shrink: 0;
+        }
+
+        /* 4. Основная таблица растягивается и получает прокрутку, если нужно */
+        .calendar-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 0.5rem;
+            flex-grow: 1;
+            overflow-y: auto;
+            display: block; /* чтобы сработал overflow-y */
+        }
+
+        /* Таблица — внутри блока с прокруткой */
+        .calendar-table thead, .calendar-table tbody, .calendar-table tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /* Остальной CSS оставляем без изменений... */
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .calendar-title i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .nav-buttons .btn {
+            background: white;
+            color: var(--primary);
+            border-radius: 30px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            border: 2px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .nav-buttons .btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-table th {
+            text-align: center;
+            font-weight: 600;
+            color: white;
+            background: var(--primary);
+            padding: 1rem 0.5rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            height: 40px;
+        }
+
+        .calendar-table td {
+            background: white;
+            border-radius: var(--border-radius);
+            height: 100px;
+            vertical-align: top;
+            text-align: center;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 0.5rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .calendar-table td:hover {
+            background: #f8fafc;
+            box-shadow: var(--shadow-md);
+        }
+
+        .calendar-table td.empty {
+            background: transparent;
+            cursor: default;
+            box-shadow: none;
+            border: none;
+        }
+
+        .day-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-bottom: 5px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .calendar-table td.current-day .day-number {
+            background: var(--today-text);
+            color: white;
+        }
+
+        .calendar-table td.current-day {
+            background: var(--today-bg);
+        }
+
+        .assignments-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .assignment-dot {
+            width: 14px;    /* было 8px */
+            height: 14px;   /* было 8px */
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 2.9rem;
+            color: var(--font-light);
+        }
+
+        .legend-color {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+        }
+
+        .legend-today {
+            background: var(--today-text);
+        }
+
+        .legend-assignment {
+            background: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            body > .calendar-container {
+                padding: 1.5rem 0.5rem;
+            }
+
+            .calendar-title {
+                font-size: 1.4rem;
+            }
+
+            .calendar-table td {
+                height: 80px;
+                font-size: 0.9rem;
+            }
+
+            .day-number {
+                width: 26px;
+                height: 26px;
+                line-height: 26px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body > .calendar-container {
+                padding: 1rem 0.5rem;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .calendar-table td {
+                height: 60px;
+                padding: 0.3rem;
+            }
+
+            .day-number {
+                width: 22px;
+                height: 22px;
+                line-height: 22px;
+                font-size: 0.8rem;
+            }
+
+            .assignment-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-left: 1rem;
+        }
+
+        .custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: #ffffff;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 0.5rem 1.2rem 0.5rem 0.8rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 1rem;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-image:
+                url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%234346CA' stroke-width='2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 10px 7px;
+        }
+
+        .custom-select:hover,
+        .custom-select:focus {
+            border-color: var(--primary-light);
+            outline: none;
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+        }
+
+        .custom-select option {
+            color: var(--font-color);
+        }
+
+        @media (max-width: 576px) {
+            .custom-select {
+                font-size: 0.9rem;
+                padding-right: 1rem;
+                border-radius: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="calendar-container">
+    <div class="calendar-header">
+        <h1 class="calendar-title">
+            <i class="fas fa-calendar-alt"></i>
+            {{ month_name|capfirst }} {{ year }}
+        </h1>
+        <div class="nav-buttons">
+            <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn">
+                <i class="fas fa-chevron-left"></i> Пред
+            </a>
+            <a href="?year={{ next_year }}&month={{ next_month }}" class="btn">
+                След <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+    <form id="dateForm" class="date-selector" method="get" action="">
+        <label for="month-select" class="visually-hidden">Месяц</label>
+        <select name="month" id="month-select" aria-label="Выбор месяца" class="custom-select">
+            {% for num, name in months %}
+                <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ num }} — {{ name|capfirst }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="year-select" class="visually-hidden">Год</label>
+        <select name="year" id="year-select" aria-label="Выбор года" class="custom-select">
+            {% for y in years %}
+                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <table class="table calendar-table">
+        <thead>
+        <tr>
+            <th>Пн</th>
+            <th>Вт</th>
+            <th>Ср</th>
+            <th>Чт</th>
+            <th>Пт</th>
+            <th>Сб</th>
+            <th>Вс</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for week in calendar_data %}
+            <tr>
+                {% for day in week %}
+                    {% if day.day == 0 %}
+                        <td class="empty"></td>
+                    {% else %}
+                        <td class="{% if day.is_current %}current-day{% endif %}"
+                            onclick="window.location.href='{% url 'AutoDoc:assignment_details' year=year month=month day=day.day_num %}'">
+                            <div class="day-number">{{ day.day }}</div>
+                            {% if day.has_assignment %}
+                                <div class="assignments-indicator">
+                                    <div class="assignment-dot"></div>
+                                    {% if day.assignments_count > 1 %}
+                                        <div class="assignment-dot"></div>
+                                    {% endif %}
+                                    {% if day.assignments_count > 2 %}
+                                        <div class="assignment-dot"></div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color legend-today"></div>
+            <span>Сегодня</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color legend-assignment"></div>
+            <span>Наличие записи</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById('month-select').addEventListener('change', function () {
+        document.getElementById('dateForm').submit();
+    });
+    document.getElementById('year-select').addEventListener('change', function () {
+        document.getElementById('dateForm').submit();
+    });
+</script>
+</body>
+</html>
