@@ -340,7 +340,7 @@
             initDatalistInputs();
 
             addWorkButton.addEventListener('click', function() {
-                if (workCount < 10) {
+                if (workCount < 100) {
                     const newWorkItem = document.createElement('div');
                     newWorkItem.className = 'work-input-group mb-3';
                     newWorkItem.innerHTML = `
@@ -369,7 +369,7 @@
                     newInput.addEventListener('input', () => updateDataId(newInput));
                     newInput.addEventListener('change', () => updateDataId(newInput));
                 } else {
-                    alert('Максимум 10 работ.');
+                    alert('Максимум 100 работ.');
                 }
             });
 
