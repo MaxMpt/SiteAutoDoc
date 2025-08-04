@@ -1,0 +1,9 @@
+{
+  "build": {
+    "nixpacks": {
+      "provider": "python",
+      "installCommand": "pip install -r requirements.txt && python manage.py migrate",
+      "startCommand": "gunicorn calendar_app.wsgi --bind 0.0.0.0:$PORT"
+    }
+  }
+}
