@@ -2,7 +2,8 @@
   "build": {
     "nixpacks": {
       "provider": "python",
-      "installCommand": "pip install -r requirements.txt && python manage.py migrate",
+      "buildCommand": "apt-get update && apt-get install -y locales && sed -i -e 's/# ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/' /etc/locale.gen && dpkg-reconfigure --frontend=noninteractive locales",
+      "installCommand": "pip install -r requirements.txt",
       "startCommand": "gunicorn calendar_app.wsgi --bind 0.0.0.0:$PORT"
     }
   }
