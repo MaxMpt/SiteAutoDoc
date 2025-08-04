@@ -155,19 +155,26 @@ def calendar_view(request):
 import locale
 from django.conf import settings
 
-try:
-    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')  # Попробуем UTF-8 вариант
-except locale.Error:
+def safe_set_locale():
     try:
-        locale.setlocale(locale.LC_TIME, 'Russian_Russia')  # Альтернативный вариант
+        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
     except locale.Error:
-        locale.setlocale(locale.LC_TIME, '')  # Системная локаль по умолчанию
-        if settings.DEBUG:
-            print("Русская локаль не найдена, используется системная")
+        try:
+            locale.setlocale(locale.LC_TIME, 'ru_RU')
+        except locale.Error:
+            try:
+                locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
+            except locale.Error:
+                locale.setlocale(locale.LC_TIME, '')
+                if settings.DEBUG:
+                    print("Русская локаль не найдена, используется системная по умолчанию")
+
+
+    # Остальной код вашего view
 
 def assignment_details_view(request, year, month, day):
     try:
-        locale.setlocale(locale.LC_TIME, 'Russian_Russia')
+        safe_set_locale()
         assignments = get_api_data("work-assignments", {'year': year, 'month': month, 'day': day})
         logger.info(f"Assignments for {year}-{month}-{day}: {assignments}")
 
