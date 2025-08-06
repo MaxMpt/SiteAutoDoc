@@ -487,26 +487,21 @@
             const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
             
             fetch(`/delete-assignment/${assignmentId}/`, {
-                method: 'DELETE',
+                method: 'POST',  // Некоторые API лучше работают с POST для удаления
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest' // Добавляем этот заголовок
                 },
-                credentials: 'include' // Важно для передачи куки
+                credentials: 'include'
             })
             .then(response => {
                 if (response.ok) {
-                    return response.json();
-                }
-                throw new Error(`Ошибка сервера: ${response.status}`);
-            })
-            .then(data => {
-                if (data.success) {
                     alert('Запись успешно удалена');
                     location.reload();
                 } else {
-                    alert(data.error || 'Неизвестная ошибка');
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Ошибка сервера');
+                    });
                 }
             })
             .catch(error => {
