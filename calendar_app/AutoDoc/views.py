@@ -366,19 +366,28 @@ def update_assignment(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
 def delete_assignment(request, assignment_id):
     try:
+        # Добавляем необходимые заголовки
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_API_TOKEN",  # Если API требует авторизацию
+            "X-CSRFToken": request.headers.get("X-CSRFToken", ""),  # Передаём CSRF
+        }
+        
         response = requests.delete(
             f"{API_BASE_URL}/work-assignments/{assignment_id}",
-            headers={"Content-Type": "application/json"}
+            headers=headers,
+            cookies=request.COOKIES  # Передаём куки если нужно
         )
 
         if response.status_code == 204:
             return JsonResponse({'success': True})
         else:
+            error_detail = response.json().get('detail', 'Unknown error')
+            logger.error(f"API error: {error_detail}")
             return JsonResponse(
-                {'error': f"API error: {response.json().get('detail', 'Unknown error')}"},
+                {'error': f"API error: {error_detail}"},
                 status=response.status_code
             )
 
