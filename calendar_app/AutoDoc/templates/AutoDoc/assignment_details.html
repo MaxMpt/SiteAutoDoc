@@ -484,16 +484,22 @@
 
     window.deleteAssignment = function(assignmentId) {
         if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
             fetch(`/delete-assignment/${assignmentId}/`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                }
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest' // Добавляем этот заголовок
+                },
+                credentials: 'include' // Важно для передачи куки
             })
             .then(response => {
-                if (response.ok) return response.json();
-                throw new Error('Ошибка сервера');
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error(`Ошибка сервера: ${response.status}`);
             })
             .then(data => {
                 if (data.success) {
@@ -505,7 +511,7 @@
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert('Не удалось удалить запись');
+                alert(`Не удалось удалить запись: ${error.message}`);
             });
         }
     };
