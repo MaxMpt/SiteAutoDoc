@@ -314,7 +314,7 @@ def get_assignment(request, assignment_id):
 #         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
 #     except Exception as e:
 #         return JsonResponse({'error': str(e)}, status=500)
-
+@csrf_exempt 
 def update_assignment(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
@@ -366,28 +366,19 @@ def update_assignment(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+@csrf_exempt 
 def delete_assignment(request, assignment_id):
     try:
-        # Добавляем необходимые заголовки
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer YOUR_API_TOKEN",  # Если API требует авторизацию
-            "X-CSRFToken": request.headers.get("X-CSRFToken", ""),  # Передаём CSRF
-        }
-        
         response = requests.delete(
             f"{API_BASE_URL}/work-assignments/{assignment_id}",
-            headers=headers,
-            cookies=request.COOKIES  # Передаём куки если нужно
+            headers={"Content-Type": "application/json"}
         )
 
         if response.status_code == 204:
             return JsonResponse({'success': True})
         else:
-            error_detail = response.json().get('detail', 'Unknown error')
-            logger.error(f"API error: {error_detail}")
             return JsonResponse(
-                {'error': f"API error: {error_detail}"},
+                {'error': f"API error: {response.json().get('detail', 'Unknown error')}"},
                 status=response.status_code
             )
 
