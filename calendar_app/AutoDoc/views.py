@@ -13,6 +13,7 @@ from operator import itemgetter
 
 logger = logging.getLogger(__name__)
 API_BASE_URL = "https://apiautodoc-production.up.railway.app"
+# API_BASE_URL = "http://127.0.0.1:8080"
 
 def get_api_data(endpoint, params=None):
     try:
@@ -241,6 +242,148 @@ def assignment_details_view(request, year, month, day):
         return render(request, 'AutoDoc/assignment_details.html', context)
     except Exception as e:
         logger.error(f"Error in assignment_details_view: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+def get_assignment(request, assignment_id):
+    try:
+        response = requests.get(
+            f"{API_BASE_URL}/get-assignment/{assignment_id}",  # Исправленный URL
+            headers={"Content-Type": "application/json"}
+        )
+
+        if response.status_code == 200:
+            return JsonResponse(response.json())
+        else:
+            return JsonResponse(
+                {'error': f"API error: {response.json().get('detail', 'Unknown error')}"},
+                status=response.status_code
+            )
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# def update_assignment(request):
+#     if request.method != 'POST':
+#         return JsonResponse({'error': 'Method not allowed'}, status=405)
+#
+#     try:
+#         data = json.loads(request.body)
+#         assignment_id = data.get('id')
+#
+#         if not assignment_id:
+#             return JsonResponse({'error': 'Missing assignment ID'}, status=400)
+#
+#         # Подготовка данных для API
+#         payload = {
+#             "date": data.get('date'),
+#             "vin": data.get('vin'),
+#             "car_number": data.get('car_number'),
+#             "color_id": data.get('color_id'),
+#             "person_id": data.get('person_id'),
+#             "car_id": data.get('car_id'),
+#             "description": data.get('description'),
+#             "works": data.get('works', [])
+#         }
+#
+#         # Удаляем None значения и пустые works
+#         payload = {k: v for k, v in payload.items() if v is not None and (k != 'works' or v)}
+#         if not payload.get('works'):
+#             payload['works'] = []
+#
+#         print(f"Sending payload to API: {payload}")  # Отладочный вывод
+#
+#         response = requests.put(
+#             f"{API_BASE_URL}/work-assignments/{assignment_id}",
+#             json=payload,
+#             headers={"Content-Type": "application/json"}
+#         )
+#
+#         if response.status_code == 200:
+#             return JsonResponse({'success': True, 'data': response.json()})
+#         else:
+#             error_detail = response.json().get('detail', 'Unknown error')
+#             return JsonResponse(
+#                 {'error': f"API error: {error_detail}"},
+#                 status=response.status_code
+#             )
+#
+#     except json.JSONDecodeError:
+#         return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=500)
+
+def update_assignment(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        assignment_id = data.get('id')
+
+        if not assignment_id:
+            return JsonResponse({'error': 'Missing assignment ID'}, status=400)
+
+        # Подготовка данных для API
+        payload = {
+            "date": data.get('date'),
+            "vin": data.get('vin'),
+            "car_number": data.get('car_number'),
+            "color_id": data.get('color_id'),
+            "person_id": data.get('person_id'),
+            "car_id": data.get('car_id'),
+            "description": data.get('description'),
+            "works": []
+        }
+
+        # Добавляем работы с их статусами
+        if 'works' in data:
+            for work in data['works']:
+                payload['works'].append({
+                    'work_id': work.get('work_id'),
+                    'executor_id': work.get('executor_id'),
+                    'status': work.get('status', False)  # Сохраняем статус
+                })
+
+        print(f"Sending payload to API: {payload}")  # Отладочный вывод
+
+        response = requests.put(
+            f"{API_BASE_URL}/work-assignments/{assignment_id}",
+            json=payload,
+            headers={"Content-Type": "application/json"}
+        )
+
+        if response.status_code == 200:
+            return JsonResponse({'success': True, 'data': response.json()})
+        else:
+            error_detail = response.json().get('detail', 'Unknown error')
+            return JsonResponse(
+                {'error': f"API error: {error_detail}"},
+                status=response.status_code
+            )
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def delete_assignment(request, assignment_id):
+    try:
+        response = requests.delete(
+            f"{API_BASE_URL}/work-assignments/{assignment_id}",
+            headers={"Content-Type": "application/json"}
+        )
+
+        if response.status_code == 204:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse(
+                {'error': f"API error: {response.json().get('detail', 'Unknown error')}"},
+                status=response.status_code
+            )
+
+    except Exception as e:
+        logger.error(f"Error deleting assignment: {e}")
         return JsonResponse({'error': str(e)}, status=500)
 #
 # @csrf_exempt
