@@ -2,43 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AutoDoc - Записи на {{ day }} {{ month_name }} {{ year }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .btn-danger {
-            background: var(--danger-color);
-            border: none;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        .btn-danger:hover {
-            background: #e60000;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(255, 51, 51, 0.3);
-        }
-         /* Добавляем новые стили для исполнителя работы */
-        .work-employee {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-left: 0.5rem;
-            font-style: italic;
-        }
-
-        .work-employee-select {
-            min-width: 200px;
-            margin-left: 0.5rem;
-        }
-
-        /* Адаптация для мобильных устройств */
-        @media (max-width: 768px) {
-            .work-employee-select {
-                min-width: 150px;
-            }
-        }
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
@@ -50,86 +19,509 @@
             --danger-color: #ff3333;
         }
 
-        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); min-height: 100vh; padding: 2rem 0; color: var(--dark-color); }
-        .assignment-container { width: 100%; margin: 0; background: white; border-radius: 0; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); padding: 2.5rem; animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; padding: 0 2.5rem; }
-        .page-title { color: var(--primary-color); font-size: 2.2rem; font-weight: 700; margin: 0; }
-        .btn { border-radius: 50px; padding: 0.7rem 1.5rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; }
-        .btn-primary { background: var(--primary-color); border: none; }
-        .btn-primary:hover { background: var(--secondary-color); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
-        .btn-secondary { background: #6c757d; border: none; }
-        .btn-secondary:hover { background: #5a6268; transform: translateY(-2px); }
-        .columns-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; padding: 0 2.5rem; }
-        .employee-column { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.03); transition: all 0.3s ease; }
-        .employee-column:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        .employee-header { font-size: 1.2rem; color: var(--primary-color); font-weight: 600; margin-bottom: 1rem; border-bottom: 1px solid rgba(0, 0, 0, 0.05); padding-bottom: 0.5rem; }
-        .assignment-card { background: white; border-radius: 15px; padding: 0.8rem; margin-bottom: 0.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); border: 1px solid rgba(0, 0, 0, 0.03); transition: all 0.3s ease; }
-        .assignment-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
-        .assignment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
-        .car-info { font-size: 1.5rem; font-weight: 700; color: var(--dark-color); }
-        .car-info span { margin-right: 0.5rem; }
-        .assignment-time { font-size: 1.3rem; color: var(--primary-color); font-weight: 600; text-align: center; flex-grow: 1; }
-        .assignment-details { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-        .detail-item { display: flex; flex-direction: column; }
-        .detail-label { font-size: 0.8rem; color: #6c757d; margin-bottom: 0.3rem; }
-        .detail-value { font-weight: 600; color: var(--dark-color); }
-        .work-list { list-style: none; padding: 0; margin: 1rem 0 0 0; }
-        .work-item { background: rgba(248, 249, 250, 0.7); border-radius: 10px; padding: 1rem; margin-bottom: 0.7rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; transition: background-color 0.3s ease; }
-        .work-item.completed { background-color: rgba(75, 181, 67, 0.2); }
-        .work-info { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
-        .work-status { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--warning-color); }
-        .work-status.completed { background: var(--success-color); }
-        .custom-checkbox { transform: scale(1.5); margin-right: 1rem; }
-        .no-assignments { text-align: center; padding: 2rem; color: #6c757d; font-size: 1.1rem; }
-        .modal-content { border-radius: 20px; border: none; overflow: hidden; }
-        .modal-header { background: var(--primary-color); color: white; border-bottom: none; padding: 1.5rem; }
-        .modal-title { font-weight: 700; }
-        .modal-body { padding: 1.5rem; }
-        .form-label { font-weight: 600; color: var(--dark-color); margin-bottom: 0.5rem; }
-        .form-control, .form-select { border-radius: 10px; padding: 0.7rem 1rem; border: 1px solid #dee2e6; }
-        .form-control:focus, .form-select:focus { border-color: var(--primary-color); box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25); }
-        .add-work-btn { background: var(--accent-color); border: none; }
-        .add-work-btn:hover { background: #3ab7dc; }
-        .work-input-group { display: flex; gap: 0.5rem; }
-        .remove-work-btn { background: var(--danger-color); border: none; width: 40px; display: flex; align-items: center; justify-content: center; }
-        .time-picker { display: flex; gap: 0.5rem; }
-        @media (max-width: 768px) { .assignment-container { padding: 1.5rem; } .page-title { font-size: 1.8rem; } .columns-container { grid-template-columns: 1fr; padding: 0 1.5rem; } .employee-column { margin-bottom: 1.5rem; } .page-header { padding: 0 1.5rem; } .modal-header { padding: 1rem; } .modal-body { padding: 1rem; } }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: var(--dark-color);
+            overflow-x: hidden;
+        }
 
+        .assignment-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-        /* Добавьте эти стили в ваш CSS */
-    .assignment-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-        padding-top: 0.8rem;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .assignment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        position: relative; /* Добавлено для позиционирования кнопки удаления */
-    }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0 1rem;
+        }
 
+        .page-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .btn {
+            border-radius: 25px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger:hover {
+            background: #e60000;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(255, 51, 51, 0.3);
+        }
+
+        .columns-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 0 1rem;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .employee-column {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .employee-column:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .employee-header {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 0.4rem;
+        }
+
+        .assignment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .car-info {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .car-info span {
+            margin-right: 0.4rem;
+        }
+
+        .assignment-time {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .assignment-actions {
+            flex-shrink: 0;
+        }
+
+        .assignment-details {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-bottom: 0.2rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+
+        .work-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.8rem 0 0 0;
+        }
+
+        .work-item {
+            background: rgba(248, 249, 250, 0.7);
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .work-item.completed {
+            background-color: rgba(75, 181, 67, 0.2);
+        }
+
+        .work-info {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .work-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--warning-color);
+        }
+
+        .work-status.completed {
+            background: var(--success-color);
+        }
+
+        .custom-checkbox {
+            transform: scale(1.3);
+            margin-right: 0.8rem;
+        }
+
+        .work-employee {
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .work-employee-select {
+            min-width: 140px;
+            font-size: 0.85rem;
+        }
+
+        .no-assignments {
+            text-align: center;
+            padding: 1.5rem;
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-bottom: none;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #dee2e6;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .add-work-btn {
+            background: var(--accent-color);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .add-work-btn:hover {
+            background: #3ab7dc;
+        }
+
+        .work-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .remove-work-btn {
+            background: var(--danger-color);
+            border: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .time-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+        }
+
+        .assignment-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.8rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
 
         .is-invalid {
             border-color: var(--danger-color);
-            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
         }
 
         .is-invalid + .invalid-feedback {
             display: block;
             color: var(--danger-color);
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            margin-top: 0.2rem;
         }
 
+        .btn-close-white {
+            filter: invert(1);
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .assignment-container {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .page-header {
+                padding: 0 0.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .columns-container {
+                padding: 0 0.5rem;
+                max-height: calc(100vh - 180px);
+            }
+
+            .employee-column {
+                padding: 0.8rem;
+                margin-bottom: 1rem;
+            }
+
+            .employee-header {
+                font-size: 1rem;
+            }
+
+            .assignment-card {
+                padding: 0.6rem;
+            }
+
+            .assignment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .car-info {
+                font-size: 1.1rem;
+            }
+
+            .assignment-time {
+                font-size: 1rem;
+                text-align: left;
+            }
+
+            .assignment-details {
+                gap: 0.5rem;
+            }
+
+            .work-item {
+                padding: 0.6rem;
+            }
+
+            .work-info {
+                gap: 0.5rem;
+            }
+
+            .work-employee-select {
+                min-width: 120px;
+                font-size: 0.8rem;
+            }
+
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            .modal-body {
+                padding: 0.8rem;
+            }
+
+            .form-control, .form-select {
+                font-size: 0.85rem;
+                padding: 0.5rem 0.7rem;
+            }
+
+            .time-picker {
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .remove-work-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .page-title {
+                font-size: 1.3rem;
+            }
+
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .assignment-card {
+                padding: 0.5rem;
+            }
+
+            .car-info {
+                font-size: 1rem;
+            }
+
+            .assignment-time {
+                font-size: 0.9rem;
+            }
+
+            .detail-value {
+                font-size: 0.85rem;
+            }
+
+            .work-employee-select {
+                min-width: 100%;
+            }
+
+            .work-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .remove-work-btn {
+                align-self: flex-end;
+            }
+        }
     </style>
 </head>
 <body>
@@ -188,7 +580,7 @@
                                     {% endif %}
                                 </div>
 
-                                <h6 class="mt-3 mb-2" style="color: var(--primary-color); font-weight: 600;">
+                                <h6 class="mt-2 mb-2" style="color: var(--primary-color); font-weight: 600;">
                                     <i class="fas fa-tasks me-2"></i>Работы:
                                 </h6>
 
@@ -197,20 +589,18 @@
                                       {% for work in assignment.works %}
                                         <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
                                             <div class="work-info">
-                                                <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                <input type="checkbox" class="form-check-input custom-checkbox"
                                                        id="work_{{ assignment.id }}_{{ work.work_id }}"
                                                        name="work_status" value="{{ work.work_id }}"
                                                        {% if work.status %}checked{% endif %}>
                                                 <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
                                                     <span class="work-status {% if work.status %}completed{% endif %}"></span>
                                                     <strong>{{ work.work_name }}</strong>
-
                                                 </label>
                                             </div>
                                             {% if work.employee_name %}
-                                                <strong class="text-muted">({{ work.employee_name }})</strong>
+                                                <span class="work-employee">({{ work.employee_name }})</span>
                                             {% endif %}
-<!--                                            <span class="text-muted">ID: {{ work.work_id }}</span>-->
                                         </li>
                                         {% empty %}
                                         <li class="text-muted">Нет работ</li>
@@ -229,7 +619,6 @@
                                             <i class="fas fa-save me-1"></i> Сохранить
                                         </button>
                                     </div>
-
                                 </form>
                             </div>
                         {% endfor %}
@@ -238,13 +627,10 @@
             </div>
         {% else %}
             <div class="no-assignments">
-                <i class="fas fa-calendar-times fa-3x mb-3" style="color: #dee2e6;"></i>
+                <i class="fas fa-calendar-times fa-2x mb-2" style="color: #dee2e6;"></i>
                 <p>Нет записей на этот день</p>
             </div>
         {% endif %}
-
-        <!-- Отладочный вывод -->
-        <div style="display: none;">Debug: {{ assignments }}</div>
     </div>
 
     <div class="modal fade" id="createAssignmentModal" tabindex="-1" aria-hidden="true">
@@ -263,8 +649,8 @@
                         <input type="hidden" name="month" value="{{ month }}">
                         <input type="hidden" name="day" value="{{ day }}">
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
+                        <div class="row g-2 mb-3">
+                            <div class="col-12 col-md-6">
                                 <label for="car_id" class="form-label">Машина</label>
                                 <input type="text" class="form-control" id="car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
                                 <datalist id="carOptions">
@@ -273,15 +659,15 @@
                                     {% endfor %}
                                 </datalist>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="car_number" class="form-label">Номер машины</label>
                                 <input type="text" class="form-control" id="car_number" name="car_number" placeholder="Введите номер машины">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="vin" class="form-label">VIN</label>
                                 <input type="text" class="form-control" id="vin" name="vin" placeholder="Введите VIN">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="color_id" class="form-label">Цвет</label>
                                 <input type="text" class="form-control" id="color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
                                 <datalist id="colorOptions">
@@ -290,7 +676,7 @@
                                     {% endfor %}
                                 </datalist>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="person_id" class="form-label">Сотрудник</label>
                                 <input type="text" class="form-control" id="person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
                                 <datalist id="personOptions">
@@ -299,11 +685,11 @@
                                     {% endfor %}
                                 </datalist>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="description" class="form-label">Описание</label>
                                 <input type="text" class="form-control" id="description" name="description" placeholder="Введите описание">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12 col-md-6">
                                 <label for="time" class="form-label">Время</label>
                                 <div class="time-picker">
                                     <select class="form-select" id="hour" name="hour">
@@ -320,12 +706,12 @@
                             </div>
                         </div>
 
-                        <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
+                        <h6 class="mb-2" style="color: var(--primary-color); font-weight: 600;">
                             <i class="fas fa-tasks me-2"></i>Работы
                         </h6>
 
-                       <div id="workItems">
-                            <div class="work-input-group mb-3">
+                        <div id="workItems">
+                            <div class="work-input-group mb-2">
                                 <div class="d-flex align-items-center gap-2 w-100">
                                     <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                                     <select class="form-select work-employee-select" name="work_employees[]" required>
@@ -338,10 +724,9 @@
                                     <button type="button" class="btn btn-danger remove-work-btn">
                                         <i class="fas fa-times"></i>
                                     </button>
-                                    
                                 </div>
                             </div>
-                       </div>
+                        </div>
 
                         <datalist id="workOptions">
                             {% for work in works %}
@@ -349,12 +734,12 @@
                             {% endfor %}
                         </datalist>
 
-                        <button type="button" class="btn add-work-btn mb-4" id="addWork">
+                        <button type="button" class="btn add-work-btn mb-3" id="addWork">
                             <i class="fas fa-plus me-2"></i>Добавить работу
                         </button>
 
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                             <button type="submit" class="btn btn-primary">Создать запись</button>
                         </div>
                     </form>
@@ -364,539 +749,529 @@
     </div>
 
     <div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editAssignmentForm">
-                    <input type="hidden" id="edit_assignment_id" name="assignment_id">
-                    <input type="hidden" id="edit_date" name="date">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAssignmentForm">
+                        <input type="hidden" id="edit_assignment_id" name="assignment_id">
+                        <input type="hidden" id="edit_date" name="date">
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="edit_car_id" class="form-label">Машина</label>
-                            <input type="text" class="form-control" id="edit_car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
-                            <datalist id="carOptions">
-                                {% for car in cars %}
-                                    <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_car_number" class="form-label">Номер машины</label>
-                            <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_vin" class="form-label">VIN</label>
-                            <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_color_id" class="form-label">Цвет</label>
-                            <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
-                            <datalist id="colorOptions">
-                                {% for color in colors %}
-                                    <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_person_id" class="form-label">Сотрудник</label>
-                            <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
-                            <datalist id="personOptions">
-                                {% for person in persons %}
-                                    <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_description" class="form-label">Описание</label>
-                            <input type="text" class="form-control" id="edit_description" name="description" placeholder="Введите описание">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Дата и время</label>
-                            <div class="d-flex gap-2">
-                                <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
-                                <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
-                                    {% for h in hours %}
-                                        <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
+                        <div class="row g-2 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label for="edit_car_id" class="form-label">Машина</label>
+                                <input type="text" class="form-control" id="edit_car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
+                                <datalist id="carOptions">
+                                    {% for car in cars %}
+                                        <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
                                     {% endfor %}
-                                </select>
-                                <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
-                                    {% for m in minutes %}
-                                        <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
+                                </datalist>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="edit_car_number" class="form-label">Номер машины</label>
+                                <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="edit_vin" class="form-label">VIN</label>
+                                <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="edit_color_id" class="form-label">Цвет</label>
+                                <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <datalist id="colorOptions">
+                                    {% for color in colors %}
+                                        <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
                                     {% endfor %}
-                                </select>
+                                </datalist>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="edit_person_id" class="form-label">Сотрудник</label>
+                                <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
+                                <datalist id="personOptions">
+                                    {% for person in persons %}
+                                        <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="edit_description" class="form-label">Описание</label>
+                                <input type="text" class="form-control" id="edit_description" name="description" placeholder="Введите описание">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Дата и время</label>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
+                                    <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
+                                        {% for h in hours %}
+                                            <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
+                                        {% for m in minutes %}
+                                            <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
-                        <i class="fas fa-tasks me-2"></i>Работы
-                    </h6>
+                        <h6 class="mb-2" style="color: var(--primary-color); font-weight: 600;">
+                            <i class="fas fa-tasks me-2"></i>Работы
+                        </h6>
 
-                    <div id="editWorkItems" class="mb-4">
-                        <!-- Работы будут добавляться динамически -->
-                    </div>
+                        <div id="editWorkItems" class="mb-3">
+                        </div>
 
-                    <button type="button" class="btn btn-primary mb-3" id="addEditWork">
-                        <i class="fas fa-plus me-2"></i>Добавить работу
-                    </button>
+                        <button type="button" class="btn btn-primary mb-3" id="addEditWork">
+                            <i class="fas fa-plus me-2"></i>Добавить работу
+                        </button>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
-                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-                    </div>
-                </form>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Шаблон для динамического добавления работ -->
-<template id="editWorkTemplate">
-    <div class="work-input-group mb-3">
-        <div class="d-flex align-items-center gap-2 w-100">
-            <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
-            <select class="form-select edit-work-employee" required>
-                <option value="">Выберите сотрудника</option>
-                {% for person in persons %}
-                    <option value="{{ person.id }}">{{ person.full_name }}</option>
-                {% endfor %}
-            </select>
-            <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
-            <button type="button" class="btn btn-danger remove-edit-work-btn">
-                <i class="fas fa-times"></i>
-            </button>
+    <template id="editWorkTemplate">
+        <div class="work-input-group mb-2">
+            <div class="d-flex align-items-center gap-2 w-100">
+                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
+                <select class="form-select edit-work-employee" required>
+                    <option value="">Выберите сотрудника</option>
+                    {% for person in persons %}
+                        <option value="{{ person.id }}">{{ person.full_name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
+                <button type="button" class="btn btn-danger remove-edit-work-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
-    </div>
-</template>
+    </template>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-   <script>
+    <script>
     document.addEventListener('DOMContentLoaded', function() {
-    let workCount = 1;
-    const addWorkButton = document.getElementById('addWork');
-    const workItems = document.getElementById('workItems');
-    const createForm = document.getElementById('createAssignmentForm');
+        let workCount = 1;
+        const addWorkButton = document.getElementById('addWork');
+        const workItems = document.getElementById('workItems');
+        const createForm = document.getElementById('createAssignmentForm');
 
-    window.deleteAssignment = function(assignmentId) {
-        if (confirm('Вы уверены, что хотите удалить эту запись?')) {
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            fetch(`/delete-assignment/${assignmentId}/`, {
-                method: 'POST',  // Некоторые API лучше работают с POST для удаления
+        window.deleteAssignment = function(assignmentId) {
+            if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(`/delete-assignment/${assignmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    credentials: 'include'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Запись успешно удалена');
+                        location.reload();
+                    } else {
+                        return response.json().then(err => {
+                            throw new Error(err.error || 'Ошибка сервера');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert(`Не удалось удалить запись: ${error.message}`);
+                });
+            }
+        };
+
+        function updateDataId(input) {
+            const datalistId = input.getAttribute('list');
+            if (!datalistId) return;
+
+            const datalist = document.getElementById(datalistId);
+            if (!datalist) return;
+
+            const options = datalist.querySelectorAll('option');
+            for (let option of options) {
+                if (option.value === input.value) {
+                    input.setAttribute('data-id', option.getAttribute('data-id') || '');
+                    return;
+                }
+            }
+            input.setAttribute('data-id', '');
+        }
+
+        function initDatalistInputs(inputs) {
+            inputs.forEach(input => {
+                input.addEventListener('input', () => updateDataId(input));
+                input.addEventListener('change', () => updateDataId(input));
+                if (input.value) updateDataId(input);
+            });
+        }
+
+        initDatalistInputs(document.querySelectorAll('input[list]'));
+
+        addWorkButton.addEventListener('click', function() {
+            if (workCount < 100) {
+                const newWorkItem = document.createElement('div');
+                newWorkItem.className = 'work-input-group mb-2';
+                newWorkItem.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 w-100">
+                        <input type="text" class="form-control" id="work_id_${workCount}"
+                               name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                        <select class="form-select work-employee-select" name="work_employees[]">
+                            <option value="">Выберите сотрудника</option>
+                            {% for person in persons %}
+                                <option value="{{ person.id }}">{{ person.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-danger remove-work-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                workItems.appendChild(newWorkItem);
+                workCount++;
+
+                document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+                initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
+            } else {
+                alert('Максимум 100 работ.');
+            }
+        });
+
+        workItems.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-work-btn')) {
+                const workGroup = e.target.closest('.work-input-group');
+                workGroup.remove();
+                workCount--;
+
+                if (document.querySelectorAll('.work-input-group').length <= 1) {
+                    document.querySelectorAll('.remove-work-btn').forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                }
+            }
+        });
+
+        createForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            let hasEmptyEmployee = false;
+            document.querySelectorAll('.work-employee-select').forEach(select => {
+                if (!select.value) {
+                    select.classList.add('is-invalid');
+                    hasEmptyEmployee = true;
+                } else {
+                    select.classList.remove('is-invalid');
+                }
+            });
+
+            if (hasEmptyEmployee) {
+                alert('Пожалуйста, укажите исполнителя для каждой работы');
+                return;
+            }
+
+            const formData = {
+                vin: document.getElementById('vin').value,
+                car_id: document.getElementById('car_id').getAttribute('data-id') || null,
+                car_number: document.getElementById('car_number').value,
+                color_id: document.getElementById('color_id').getAttribute('data-id'),
+                person_id: document.getElementById('person_id').getAttribute('data-id'),
+                description: document.getElementById('description').value,
+                hour: document.getElementById('hour').value,
+                minute: document.getElementById('minute').value,
+                works: []
+            };
+
+            if (!formData.color_id || !formData.person_id) {
+                alert('Пожалуйста, выберите цвет и сотрудника из списка');
+                return;
+            }
+
+            document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
+                const workId = input.getAttribute('data-id');
+                const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
+                if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
+            });
+
+            if (formData.works.length === 0) {
+                alert('Пожалуйста, добавьте хотя бы одну работу');
+                return;
+            }
+
+            try {
+                const response = await fetch(createForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
+                    modal.hide();
+                    window.location.href = result.redirect_url || window.location.href;
+                } else {
+                    alert(result.error || 'Произошла ошибка при создании записи');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
+            }
+        });
+
+        document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
+            createForm.reset();
+            workItems.innerHTML = `
+                <div class="work-input-group mb-2">
+                    <div class="d-flex align-items-center gap-2 w-100">
+                        <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                        <select class="form-select work-employee-select" name="work_employees[]">
+                            <option value="">Выберите сотрудника</option>
+                            {% for person in persons %}
+                                <option value="{{ person.id }}">{{ person.full_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-danger remove-work-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            workCount = 1;
+            document.querySelectorAll('input[list]').forEach(input => {
+                input.removeAttribute('data-id');
+            });
+            initDatalistInputs(document.querySelectorAll('input[list]'));
+        });
+
+        window.saveWorkStatus = function(assignmentId) {
+            const form = document.getElementById(`workStatusForm_${assignmentId}`);
+            const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
+                .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
+
+            fetch(`/update-work-status/${assignmentId}/`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
-                credentials: 'include'
+                body: JSON.stringify({ updates })
             })
-            .then(response => {
-                if (response.ok) {
-                    alert('Запись успешно удалена');
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Статусы сохранены успешно');
                     location.reload();
                 } else {
-                    return response.json().then(err => {
-                        throw new Error(err.error || 'Ошибка сервера');
-                    });
+                    alert('Ошибка при сохранении статусов');
                 }
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert(`Не удалось удалить запись: ${error.message}`);
+                alert('Произошла ошибка при сохранении');
             });
-        }
-    };
-
-    function updateDataId(input) {
-        const datalistId = input.getAttribute('list');
-        if (!datalistId) return;
-
-        const datalist = document.getElementById(datalistId);
-        if (!datalist) return;
-
-        const options = datalist.querySelectorAll('option');
-        for (let option of options) {
-            if (option.value === input.value) {
-                input.setAttribute('data-id', option.getAttribute('data-id') || '');
-                return;
-            }
-        }
-        input.setAttribute('data-id', '');
-    }
-
-    function initDatalistInputs(inputs) {
-        inputs.forEach(input => {
-            input.addEventListener('input', () => updateDataId(input));
-            input.addEventListener('change', () => updateDataId(input));
-            if (input.value) updateDataId(input);
-        });
-    }
-
-    initDatalistInputs(document.querySelectorAll('input[list]'));
-
-    addWorkButton.addEventListener('click', function() {
-        if (workCount < 100) {
-            const newWorkItem = document.createElement('div');
-            newWorkItem.className = 'work-input-group mb-3';
-            newWorkItem.innerHTML = `
-                <div class="d-flex align-items-center gap-2 w-100">
-                    <input type="text" class="form-control" id="work_id_${workCount}"
-                           name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                    <select class="form-select work-employee-select" name="work_employees[]">
-                        <option value="">Выберите сотрудника</option>
-                        {% for person in persons %}
-                            <option value="{{ person.id }}">{{ person.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" class="btn btn-danger remove-work-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            workItems.appendChild(newWorkItem);
-            workCount++;
-
-            document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
-            initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
-        } else {
-            alert('Максимум 100 работ.');
-        }
-    });
-
-    workItems.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-work-btn')) {
-            const workGroup = e.target.closest('.work-input-group');
-            workGroup.remove();
-            workCount--;
-
-            if (document.querySelectorAll('.work-input-group').length <= 1) {
-                document.querySelectorAll('.remove-work-btn').forEach(btn => {
-                    btn.style.display = 'none';
-                });
-            }
-        }
-    });
-
-    createForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Проверка исполнителей для работ
-        let hasEmptyEmployee = false;
-        document.querySelectorAll('.work-employee-select').forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                hasEmptyEmployee = true;
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-
-        if (hasEmptyEmployee) {
-            alert('Пожалуйста, укажите исполнителя для каждой работы');
-            return;
-        }
-
-        const formData = {
-            vin: document.getElementById('vin').value,
-            car_id: document.getElementById('car_id').getAttribute('data-id') || null,
-            car_number: document.getElementById('car_number').value,
-            color_id: document.getElementById('color_id').getAttribute('data-id'),
-            person_id: document.getElementById('person_id').getAttribute('data-id'),
-            description: document.getElementById('description').value,
-            hour: document.getElementById('hour').value,
-            minute: document.getElementById('minute').value,
-            works: []
         };
 
-        if (!formData.color_id || !formData.person_id) {
-            alert('Пожалуйста, выберите цвет и сотрудника из списка');
-            return;
-        }
+        window.openEditModal = function(assignmentId) {
+            fetch(`/get-assignment/${assignmentId}/`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка загрузки данных');
+                    return response.json();
+                })
+                .then(data => {
+                    const modalElement = document.getElementById('editAssignmentModal');
+                    if (!modalElement) {
+                        console.error('Модальное окно #editAssignmentModal не найдено');
+                        return;
+                    }
 
-        document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
-            const workId = input.getAttribute('data-id');
-            const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
-            if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
-        });
+                    document.getElementById('edit_assignment_id').value = data.id || '';
+                    document.getElementById('edit_date').value = data.date || '';
+                    document.getElementById('edit_car_id').value = data.car?.name || '';
+                    document.getElementById('edit_car_id').setAttribute('data-id', data.car?.id || '');
+                    document.getElementById('edit_car_number').value = data.car_number || '';
+                    document.getElementById('edit_vin').value = data.vin || '';
+                    document.getElementById('edit_color_id').value = data.color?.name || '';
+                    document.getElementById('edit_color_id').setAttribute('data-id', data.color?.id || '');
+                    document.getElementById('edit_person_id').value = data.person?.full_name || '';
+                    document.getElementById('edit_person_id').setAttribute('data-id', data.person?.id || '');
+                    document.getElementById('edit_description').value = data.description || '';
 
-        if (formData.works.length === 0) {
-            alert('Пожалуйста, добавьте хотя бы одну работу');
-            return;
-        }
+                    const dateObj = new Date(data.date);
+                    document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
+                    document.getElementById('edit_hour').value = dateObj.getHours() || 0;
+                    document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
 
-        try {
-            const response = await fetch(createForm.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(formData)
-            });
+                    const workItemsContainer = document.getElementById('editWorkItems');
+                    workItemsContainer.innerHTML = '';
+                    const workTemplate = document.getElementById('editWorkTemplate');
+                    if (workTemplate) {
+                        (data.work_assignment_works || []).forEach(work => {
+                            const workClone = workTemplate.content.cloneNode(true);
+                            const workInput = workClone.querySelector('.edit-work-id');
+                            const employeeSelect = workClone.querySelector('.edit-work-employee');
 
-            const result = await response.json();
-            if (result.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
-                modal.hide();
-                window.location.href = result.redirect_url || window.location.href;
-            } else {
-                alert(result.error || 'Произошла ошибка при создании записи');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
-        }
-    });
+                            workInput.value = work.work?.name || '';
+                            workInput.setAttribute('data-id', work.work_id || '');
+                            employeeSelect.value = work.executor_id || '';
 
-    document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
-        createForm.reset();
-        workItems.innerHTML = `
-            <div class="work-input-group mb-3">
-                <div class="d-flex align-items-center gap-2 w-100">
-                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                    <select class="form-select work-employee-select" name="work_employees[]">
-                        <option value="">Выберите сотрудника</option>
-                        {% for person in persons %}
-                            <option value="{{ person.id }}">{{ person.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" class="btn btn-danger remove-work-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-        workCount = 1;
-        document.querySelectorAll('input[list]').forEach(input => {
-            input.removeAttribute('data-id');
-        });
-        initDatalistInputs(document.querySelectorAll('input[list]'));
-    });
+                            const statusInput = document.createElement('input');
+                            statusInput.type = 'hidden';
+                            statusInput.className = 'edit-work-status';
+                            statusInput.name = 'work_statuses[]';
+                            statusInput.value = work.status ? '1' : '0';
 
-    window.saveWorkStatus = function(assignmentId) {
-        const form = document.getElementById(`workStatusForm_${assignmentId}`);
-        const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
-            .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
+                            workClone.querySelector('.d-flex').appendChild(statusInput);
+                            workItemsContainer.appendChild(workClone);
+                        });
+                    } else {
+                        console.error('Шаблон #editWorkTemplate не найден');
+                    }
 
-        fetch(`/update-work-status/${assignmentId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({ updates })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Статусы сохранены успешно');
-                location.reload();
-            } else {
-                alert('Ошибка при сохранении статусов');
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при сохранении');
-        });
-    };
-
-    window.openEditModal = function(assignmentId) {
-    fetch(`/get-assignment/${assignmentId}/`)
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка загрузки данных');
-            return response.json();
-        })
-        .then(data => {
-            console.log('Полученные данные:', data);
-
-            const modalElement = document.getElementById('editAssignmentModal');
-            if (!modalElement) {
-                console.error('Модальное окно #editAssignmentModal не найдено');
-                return;
-            }
-
-            document.getElementById('edit_assignment_id').value = data.id || '';
-            document.getElementById('edit_date').value = data.date || '';
-            document.getElementById('edit_car_id').value = data.car?.name || '';
-            document.getElementById('edit_car_id').setAttribute('data-id', data.car?.id || '');
-            document.getElementById('edit_car_number').value = data.car_number || '';
-            document.getElementById('edit_vin').value = data.vin || '';
-            document.getElementById('edit_color_id').value = data.color?.name || '';
-            document.getElementById('edit_color_id').setAttribute('data-id', data.color?.id || '');
-            document.getElementById('edit_person_id').value = data.person?.full_name || '';
-            document.getElementById('edit_person_id').setAttribute('data-id', data.person?.id || '');
-            document.getElementById('edit_description').value = data.description || '';
-
-            const dateObj = new Date(data.date);
-            document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
-            document.getElementById('edit_hour').value = dateObj.getHours() || 0;
-            document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-
-            const workItemsContainer = document.getElementById('editWorkItems');
-            workItemsContainer.innerHTML = '';
-            const workTemplate = document.getElementById('editWorkTemplate');
-            if (workTemplate) {
-                (data.work_assignment_works || []).forEach(work => {
-                    const workClone = workTemplate.content.cloneNode(true);
-                    const workInput = workClone.querySelector('.edit-work-id');
-                    const employeeSelect = workClone.querySelector('.edit-work-employee');
-                    const statusCheckbox = workClone.querySelector('.edit-work-status');
-
-                    workInput.value = work.work?.name || '';
-                    workInput.setAttribute('data-id', work.work_id || '');
-                    employeeSelect.value = work.executor_id || '';
-
-                    // Добавляем скрытое поле для статуса работы
-                    const statusInput = document.createElement('input');
-                    statusInput.type = 'hidden';
-                    statusInput.className = 'edit-work-status';
-                    statusInput.name = 'work_statuses[]';
-                    statusInput.value = work.status ? '1' : '0';
-
-                    workClone.querySelector('.d-flex').appendChild(statusInput);
-                    workItemsContainer.appendChild(workClone);
+                    const editModal = new bootstrap.Modal(modalElement, { backdrop: 'static' });
+                    editModal.show();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Не удалось загрузить данные для редактирования: ' + error.message);
                 });
-            } else {
-                console.error('Шаблон #editWorkTemplate не найден');
-            }
+        };
 
-            const editModal = new bootstrap.Modal(modalElement, { backdrop: 'static' });
-            editModal.show();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Не удалось загрузить данные для редактирования: ' + error.message);
-        });
-    };
+        document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-    document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        // Проверка исполнителей для работ
-        let hasEmptyEmployee = false;
-        document.querySelectorAll('.edit-work-employee').forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                hasEmptyEmployee = true;
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-
-        if (hasEmptyEmployee) {
-            alert('Пожалуйста, укажите исполнителя для каждой работы');
-            return;
-        }
-
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-
-        try {
-            const formData = {
-                id: document.getElementById('edit_assignment_id').value,
-                date: document.getElementById('edit_date_picker').value + 'T' +
-                     String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
-                     String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
-                car_id: document.getElementById('edit_car_id').getAttribute('data-id'),
-                car_number: document.getElementById('edit_car_number').value,
-                vin: document.getElementById('edit_vin').value,
-                color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
-                person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
-                description: document.getElementById('edit_description').value,
-                works: []
-            };
-
-            // Собираем данные о работах с их статусами
-            document.querySelectorAll('.edit-work-id').forEach((input, index) => {
-                const workId = input.getAttribute('data-id');
-                const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
-                const statusInput = document.querySelectorAll('.edit-work-status')[index];
-
-                const employeeId = employeeSelect ? employeeSelect.value : null;
-                const status = statusInput ? statusInput.value === '1' : false;
-
-                if (workId && workId !== '') {
-                    formData.works.push({
-                        work_id: parseInt(workId),
-                        executor_id: employeeId ? parseInt(employeeId) : null,
-                        status: status
-                    });
+            let hasEmptyEmployee = false;
+            document.querySelectorAll('.edit-work-employee').forEach(select => {
+                if (!select.value) {
+                    select.classList.add('is-invalid');
+                    hasEmptyEmployee = true;
+                } else {
+                    select.classList.remove('is-invalid');
                 }
             });
 
-            console.log('Отправляемые данные:', formData);
-
-            const response = await fetch('/update-assignment/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
-            if (response.ok && result.success) {
-                showAlert('Изменения успешно сохранены', 'success');
-                setTimeout(() => {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
-                    modal.hide();
-                    location.reload();
-                }, 1000);
-            } else {
-                throw new Error(result.error || 'Ошибка при сохранении изменений');
+            if (hasEmptyEmployee) {
+                alert('Пожалуйста, укажите исполнителя для каждой работы');
+                return;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert(error.message, 'danger');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить изменения';
-        }
-    });
 
-    function showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.setAttribute('role', 'alert');
-        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-        const container = document.querySelector('#editAssignmentModal .modal-body');
-        container.insertBefore(alertDiv, container.firstChild);
-        setTimeout(() => {
-            alertDiv.classList.remove('show');
-            setTimeout(() => alertDiv.remove(), 150);
-        }, 5000);
-    }
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
 
-    document.getElementById('addEditWork').addEventListener('click', function() {
-        const workItemsContainer = document.getElementById('editWorkItems');
-        const workTemplate = document.getElementById('editWorkTemplate');
-        if (workTemplate) {
-            const workClone = workTemplate.content.cloneNode(true);
-            const workInput = workClone.querySelector('.edit-work-id');
-            initDatalistInputs([workInput]); // Инициализация datalist для нового поля
-            workItemsContainer.appendChild(workClone);
-            document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'block');
-        }
-    });
+            try {
+                const formData = {
+                    id: document.getElementById('edit_assignment_id').value,
+                    date: document.getElementById('edit_date_picker').value + 'T' +
+                         String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
+                         String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
+                    car_id: document.getElementById('edit_car_id').getAttribute('data-id'),
+                    car_number: document.getElementById('edit_car_number').value,
+                    vin: document.getElementById('edit_vin').value,
+                    color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
+                    person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
+                    description: document.getElementById('edit_description').value,
+                    works: []
+                };
 
-    document.getElementById('editWorkItems').addEventListener('click', function(e) {
-        if (e.target.closest('.remove-edit-work-btn')) {
-            const workGroup = e.target.closest('.work-input-group');
-            workGroup.remove();
-            if (document.querySelectorAll('.work-input-group').length <= 1) {
-                document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'none');
+                document.querySelectorAll('.edit-work-id').forEach((input, index) => {
+                    const workId = input.getAttribute('data-id');
+                    const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
+                    const statusInput = document.querySelectorAll('.edit-work-status')[index];
+
+                    const employeeId = employeeSelect ? employeeSelect.value : null;
+                    const status = statusInput ? statusInput.value === '1' : false;
+
+                    if (workId && workId !== '') {
+                        formData.works.push({
+                            work_id: parseInt(workId),
+                            executor_id: employeeId ? parseInt(employeeId) : null,
+                            status: status
+                        });
+                    }
+                });
+
+                const response = await fetch('/update-assignment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showAlert('Изменения успешно сохранены', 'success');
+                    setTimeout(() => {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
+                        modal.hide();
+                        location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Ошибка при сохранении изменений');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(error.message, 'danger');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Сохранить изменения';
             }
+        });
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+            const container = document.querySelector('#editAssignmentModal .modal-body');
+            container.insertBefore(alertDiv, container.firstChild);
+            setTimeout(() => {
+                alertDiv.classList.remove('show');
+                setTimeout(() => alertDiv.remove(), 150);
+            }, 5000);
         }
+
+        document.getElementById('addEditWork').addEventListener('click', function() {
+            const workItemsContainer = document.getElementById('editWorkItems');
+            const workTemplate = document.getElementById('editWorkTemplate');
+            if (workTemplate) {
+                const workClone = workTemplate.content.cloneNode(true);
+                const workInput = workClone.querySelector('.edit-work-id');
+                initDatalistInputs([workInput]);
+                workItemsContainer.appendChild(workClone);
+                document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'block');
+            }
+        });
+
+        document.getElementById('editWorkItems').addEventListener('click', function(e) {
+            if (e.target.closest('.remove-edit-work-btn')) {
+                const workGroup = e.target.closest('.work-input-group');
+                workGroup.remove();
+                if (document.querySelectorAll('.work-input-group').length <= 1) {
+                    document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'none');
+                }
+            }
+        });
     });
-});
     </script>
-
+</body>
+</html>
