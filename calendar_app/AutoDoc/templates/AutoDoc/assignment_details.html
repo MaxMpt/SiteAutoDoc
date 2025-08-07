@@ -373,6 +373,8 @@
             border: none;
             width: 36px;
             height: 36px;
+            min-width: 36px;
+            min-height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -383,6 +385,12 @@
 
         .remove-work-btn i {
             font-size: 0.9rem;
+        }
+
+        .remove-work-btn:hover {
+            background: #e60000;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(255, 51, 51, 0.3);
         }
 
         .time-picker {
@@ -463,6 +471,7 @@
             
             .remove-work-btn {
                 min-height: 36px;
+                min-width: 36px;
             }
         }
 
@@ -817,7 +826,7 @@
                     {% endfor %}
                 </select>
                 <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
-                <button type="button" class="btn btn-danger remove-edit-work-btn">
+                <button type="button" class="btn btn-danger remove-work-btn">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1234,16 +1243,16 @@
                 const workInput = workClone.querySelector('.edit-work-id');
                 initDatalistInputs([workInput]); // Инициализация datalist для нового поля
                 workItemsContainer.appendChild(workClone);
-                document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'block');
+                document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
             }
         });
 
         document.getElementById('editWorkItems').addEventListener('click', function(e) {
-            if (e.target.closest('.remove-edit-work-btn')) {
+            if (e.target.closest('.remove-work-btn')) {
                 const workGroup = e.target.closest('.work-input-group');
                 workGroup.remove();
                 if (document.querySelectorAll('.work-input-group').length <= 1) {
-                    document.querySelectorAll('.remove-edit-work-btn').forEach(btn => btn.style.display = 'none');
+                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'none');
                 }
             }
         });
