@@ -910,7 +910,7 @@
                                name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                         <select class="form-select work-employee-select" name="work_employees[]">
                             <option value="">Выберите сотрудника</option>
-                            {% for person in persons %}
+                            {% for person in persons_status_true %}
                                 <option value="{{ person.id }}">{{ person.full_name }}</option>
                             {% endfor %}
                         </select>
@@ -1022,7 +1022,7 @@
                         <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                         <select class="form-select work-employee-select" name="work_employees[]">
                             <option value="">Выберите сотрудника</option>
-                            {% for person in persons %}
+                            {% for person in persons_status_true %}
                                 <option value="{{ person.id }}">{{ person.full_name }}</option>
                             {% endfor %}
                         </select>
