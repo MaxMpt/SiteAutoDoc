@@ -59,6 +59,26 @@
             font-weight: 700;
             margin: 0;
             line-height: 1.3;
+            flex: 1;
+            min-width: 100%;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        @media (min-width: 576px) {
+            .page-title {
+                min-width: auto;
+                flex: initial;
+            }
+            .header-buttons {
+                width: auto;
+                justify-content: flex-end;
+            }
         }
 
         .btn {
@@ -72,6 +92,13 @@
             gap: 0.3rem;
             font-size: 0.85rem;
             white-space: nowrap;
+            flex: 1;
+        }
+
+        @media (min-width: 400px) {
+            .btn {
+                flex: initial;
+            }
         }
 
         .btn-primary {
@@ -463,9 +490,9 @@
     <div class="assignment-container">
         <div class="page-header">
             <h1 class="page-title">Записи на {{ day }} {{ month_name }} {{ year }}</h1>
-            <div>
-                <button type="button" class="btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createAssignmentModal">
-                    <i class="fas fa-plus"></i> Новая запись
+            <div class="header-buttons">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createAssignmentModal">
+                    <i class="fas fa-plus"></i> Создать заявку
                 </button>
                 <a href="{% url 'AutoDoc:calendar' %}" class="btn btn-secondary">
                     <i class="fas fa-calendar"></i> Календарь
