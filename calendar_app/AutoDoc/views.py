@@ -34,60 +34,6 @@ def post_api_data(endpoint, data):
     except requests.RequestException as e:
         logger.error(f"API error ({endpoint}): {e.response.text if e.response else str(e)}")
         return None
-#
-# def calendar_view(request):
-#     try:
-#         current_date = datetime.now()
-#         year = int(request.GET.get('year', current_date.year))
-#         month = int(request.GET.get('month', current_date.month))
-#
-#         assignments = get_api_data("work-assignments", {'year': year, 'month': month})
-#         logger.info(f"Assignments for {year}-{month}: {assignments}")
-#
-#         cal = calendar.monthcalendar(year, month)
-#         calendar_data = []
-#
-#         days_with_assignments = set()
-#         for assignment in assignments:
-#             try:
-#                 date = datetime.fromisoformat(assignment['date'])
-#                 if date.year == year and date.month == month:
-#                     days_with_assignments.add(date.day)
-#             except (ValueError, KeyError) as e:
-#                 logger.error(f"Error parsing date {assignment.get('date', 'None')}: {e}")
-#
-#         for week in cal:
-#             week_data = []
-#             for day in week:
-#                 if day == 0:
-#                     week_data.append({'day': 0})
-#                     continue
-#                 week_data.append({
-#                     'day': day,
-#                     'day_num': day,
-#                     'has_assignment': day in days_with_assignments,
-#                     'is_current': (day == current_date.day and month == current_date.month and year == current_date.year)
-#                 })
-#             calendar_data.append(week_data)
-#
-#         prev_date = datetime(year, month, 1) - timedelta(days=1)
-#         next_date = datetime(year, month, 28) + timedelta(days=4)
-#
-#         context = {
-#             'calendar_data': calendar_data,
-#             'month_name': calendar.month_name[month],
-#             'year': year,
-#             'month': month,
-#             'prev_year': prev_date.year,
-#             'prev_month': prev_date.month,
-#             'next_year': next_date.year,
-#             'next_month': next_date.month,
-#             'current_day': current_date.day
-#         }
-#         return render(request, 'AutoDoc/calendar.html', context)
-#     except Exception as e:
-#         logger.error(f"Error in calendar_view: {e}")
-#         return JsonResponse({'error': str(e)}, status=500)
 
 def calendar_view(request):
     try:
@@ -231,7 +177,8 @@ def assignment_details_view(request, year, month, day):
             'works': works,
             'cars': get_api_data("cars"),
             'colors': get_api_data("colors"),
-            'persons': get_api_data("persons")
+            'persons': get_api_data("persons"),
+            'persons_status_true' : get_api_data("persons-status")
         }
 
         context.update({
