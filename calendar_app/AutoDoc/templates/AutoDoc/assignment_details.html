@@ -509,22 +509,112 @@
             </div>
         </div>
 
+        {% comment %}
+            Ниже: шаблон теперь поддерживает два формата `assignments`:
+            1) grouped: [{ person_name: "...", assignments: [ {...}, {...} ] }, ...]
+            2) flat: [ {...}, {...}, ... ]  (каждый элемент — одно назначение)
+        {% endcomment %}
+
         {% if assignments %}
             <div class="columns-container">
-                {% for assignment_group in assignments %}
-                    <div class="employee-column">
-                        <div class="employee-header">{{ assignment_group.person_name|default:'Не указан' }}</div>
-                        {% for assignment in assignment_group.assignments %}
+                {% for ag in assignments %}
+                    {# Если текущий элемент — группа (есть поле assignments) #}
+                    {% if ag.assignments %}
+                        <div class="employee-column">
+                            <div class="employee-header">{{ ag.person_name|default:"Не указан" }}</div>
+
+                            {% for assignment in ag.assignments %}
+                                <div class="assignment-card">
+                                    <div class="assignment-header">
+                                        <div class="car-info">
+                                            <span>{{ assignment.car_name }}</span>
+                                            {% if assignment.car_number %}<span>({{ assignment.car_number }})</span>{% endif %}
+                                        </div>
+                                        <div class="assignment-time">{{ assignment.time }}</div>
+                                        <div class="assignment-actions">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteAssignment({{ assignment.id }})">
+                                                <i class="fas fa-trash"></i> Удалить
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="assignment-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">VIN</span>
+                                            <span class="detail-value">{{ assignment.vin }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Цвет</span>
+                                            <span class="detail-value">{{ assignment.color_name }}</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Сотрудник</span>
+                                            <span class="detail-value">{{ ag.person_name|default:'Не указан' }}</span>
+                                        </div>
+                                        {% if assignment.description %}
+                                        <div class="detail-item">
+                                            <span class="detail-label">Описание</span>
+                                            <span class="detail-value">{{ assignment.description }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <h6 class="mt-3 mb-2" style="color: var(--primary-color); font-weight: 600; font-size: 0.95rem;">
+                                        <i class="fas fa-tasks me-2"></i>Работы:
+                                    </h6>
+
+                                    <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
+                                        <ul class="work-list">
+                                            {% for work in assignment.works %}
+                                                <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
+                                                    <div class="work-info">
+                                                        <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                               id="work_{{ assignment.id }}_{{ work.work_id }}"
+                                                               name="work_status" value="{{ work.work_id }}"
+                                                               {% if work.status %}checked{% endif %}>
+                                                        <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
+                                                            <span class="work-status {% if work.status %}completed{% endif %}"></span>
+                                                            <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
+                                                        </label>
+                                                    </div>
+                                                    {% if work.employee_name %}
+                                                        <strong class="text-muted" style="font-size: 0.8rem;">({{ work.employee_name }})</strong>
+                                                    {% endif %}
+                                                </li>
+                                            {% empty %}
+                                                <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
+                                            {% endfor %}
+                                        </ul>
+
+                                        <div class="assignment-footer">
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="openEditModal({{ assignment.id }})" title="Редактировать запись">
+                                                <i class="fas fa-edit me-1"></i> Изменить
+                                            </button>
+
+                                            <button type="button" class="btn btn-success btn-sm" onclick="saveWorkStatus({{ assignment.id }})">
+                                                <i class="fas fa-save me-1"></i> Сохранить
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    {# Иначе: элемент — одиночное назначение (flat list) #}
+                    {% else %}
+                        {% comment %} Здесь ag — само назначение {% endcomment %}
+                        <div class="employee-column">
+                            <div class="employee-header">{{ ag.person_name|default:"Не указан" }}</div>
+
                             <div class="assignment-card">
                                 <div class="assignment-header">
                                     <div class="car-info">
-                                        <span>{{ assignment.car_name }}</span>
-                                        {% if assignment.car_number %}<span>({{ assignment.car_number }})</span>{% endif %}
+                                        <span>{{ ag.car_name }}</span>
+                                        {% if ag.car_number %}<span>({{ ag.car_number }})</span>{% endif %}
                                     </div>
-                                    <div class="assignment-time">{{ assignment.time }}</div>
+                                    <div class="assignment-time">{{ ag.time }}</div>
                                     <div class="assignment-actions">
-                                        <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="deleteAssignment({{ assignment.id }})">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteAssignment({{ ag.id }})">
                                             <i class="fas fa-trash"></i> Удалить
                                         </button>
                                     </div>
@@ -533,20 +623,20 @@
                                 <div class="assignment-details">
                                     <div class="detail-item">
                                         <span class="detail-label">VIN</span>
-                                        <span class="detail-value">{{ assignment.vin }}</span>
+                                        <span class="detail-value">{{ ag.vin }}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="detail-label">Цвет</span>
-                                        <span class="detail-value">{{ assignment.color_name }}</span>
+                                        <span class="detail-value">{{ ag.color_name }}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="detail-label">Сотрудник</span>
-                                        <span class="detail-value">{{ assignment_group.person_name|default:'Не указан' }}</span>
+                                        <span class="detail-value">{{ ag.person_name|default:'Не указан' }}</span>
                                     </div>
-                                    {% if assignment.description %}
+                                    {% if ag.description %}
                                     <div class="detail-item">
                                         <span class="detail-label">Описание</span>
-                                        <span class="detail-value">{{ assignment.description }}</span>
+                                        <span class="detail-value">{{ ag.description }}</span>
                                     </div>
                                     {% endif %}
                                 </div>
@@ -555,45 +645,42 @@
                                     <i class="fas fa-tasks me-2"></i>Работы:
                                 </h6>
 
-                                <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
+                                <form id="workStatusForm_{{ ag.id }}" data-assignment-id="{{ ag.id }}">
                                     <ul class="work-list">
-                                      {% for work in assignment.works %}
-                                        <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
-                                            <div class="work-info">
-                                                <input type="checkbox" class="form-check-input custom-checkbox me-2"
-                                                       id="work_{{ assignment.id }}_{{ work.work_id }}"
-                                                       name="work_status" value="{{ work.work_id }}"
-                                                       {% if work.status %}checked{% endif %}>
-                                                <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
-                                                    <span class="work-status {% if work.status %}completed{% endif %}"></span>
-                                                    <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
-                                                </label>
-                                            </div>
-                                            {% if work.employee_name %}
-                                                <strong class="text-muted" style="font-size: 0.8rem;">({{ work.employee_name }})</strong>
-                                            {% endif %}
-                                        </li>
+                                        {% for work in ag.works %}
+                                            <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
+                                                <div class="work-info">
+                                                    <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                           id="work_{{ ag.id }}_{{ work.work_id }}"
+                                                           name="work_status" value="{{ work.work_id }}"
+                                                           {% if work.status %}checked{% endif %}>
+                                                    <label for="work_{{ ag.id }}_{{ work.work_id }}" class="form-check-label">
+                                                        <span class="work-status {% if work.status %}completed{% endif %}"></span>
+                                                        <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
+                                                    </label>
+                                                </div>
+                                                {% if work.employee_name %}
+                                                    <strong class="text-muted" style="font-size: 0.8rem;">({{ work.employee_name }})</strong>
+                                                {% endif %}
+                                            </li>
                                         {% empty %}
-                                        <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
+                                            <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
                                         {% endfor %}
                                     </ul>
 
                                     <div class="assignment-footer">
-                                        <button type="button" class="btn btn-primary btn-sm"
-                                                onclick="openEditModal({{ assignment.id }})"
-                                                title="Редактировать запись">
+                                        <button type="button" class="btn btn-primary btn-sm" onclick="openEditModal({{ ag.id }})" title="Редактировать запись">
                                             <i class="fas fa-edit me-1"></i> Изменить
                                         </button>
 
-                                        <button type="button" class="btn btn-success btn-sm"
-                                                onclick="saveWorkStatus({{ assignment.id }})">
+                                        <button type="button" class="btn btn-success btn-sm" onclick="saveWorkStatus({{ ag.id }})">
                                             <i class="fas fa-save me-1"></i> Сохранить
                                         </button>
                                     </div>
                                 </form>
                             </div>
-                        {% endfor %}
-                    </div>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% else %}
