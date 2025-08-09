@@ -16,8 +16,6 @@
             --primary-dark: #4338ca;
             --accent: #06b6d4;
             --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
             --today-bg: #fef3c7;
             --today-text: #92400e;
             --font-color: #1e293b;
@@ -27,7 +25,6 @@
             --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* 1. Растягиваем на всю высоту */
         html, body {
             margin: 0;
             padding: 0;
@@ -40,14 +37,11 @@
             flex-direction: column;
         }
 
-        /* 2. Контейнер занимает всю оставшуюся высоту */
         body > .calendar-container {
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             width: 100%;
-            max-width: none;
-            margin: 0 auto;
             background: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-md);
@@ -56,32 +50,17 @@
             box-sizing: border-box;
         }
 
-        /* 3. Заголовок и форма — не растягиваем, фиксируем по высоте */
         .calendar-header,
-        .date-selector,
-        .legend {
+        .date-selector {
             flex-shrink: 0;
         }
 
-        /* 4. Основная таблица растягивается и получает прокрутку, если нужно */
         .calendar-table {
             width: 100%;
             table-layout: fixed;
             border-collapse: separate;
             border-spacing: 0.5rem;
-            flex-grow: 1;
-            overflow-y: auto;
-            display: block; /* чтобы сработал overflow-y */
         }
-
-        /* Таблица — внутри блока с прокруткой */
-        .calendar-table thead, .calendar-table tbody, .calendar-table tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        /* Остальной CSS оставляем без изменений... */
 
         .calendar-header {
             display: flex;
@@ -202,98 +181,10 @@
         }
 
         .assignment-dot {
-            width: 16px;    /* было 8px */
-            height: 16px;   /* было 8px */
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             background: var(--success);
-        }
-
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 2.9rem;
-            color: var(--font-light);
-        }
-
-        .legend-color {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-        }
-
-        .legend-today {
-            background: var(--today-text);
-        }
-
-        .legend-assignment {
-            background: var(--success);
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-
-            body > .calendar-container {
-                padding: 1.5rem 0.5rem;
-            }
-
-            .calendar-title {
-                font-size: 1.4rem;
-            }
-
-            .calendar-table td {
-                height: 80px;
-                font-size: 0.9rem;
-            }
-
-            .day-number {
-                width: 26px;
-                height: 26px;
-                line-height: 26px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            body > .calendar-container {
-                padding: 1rem 0.5rem;
-            }
-
-            .calendar-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .nav-buttons {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .calendar-table td {
-                height: 60px;
-                padding: 0.3rem;
-            }
-
-            .day-number {
-                width: 22px;
-                height: 22px;
-                line-height: 22px;
-                font-size: 0.8rem;
-            }
-
-            .assignment-dot {
-                width: 6px;
-                height: 6px;
-            }
         }
 
         .date-selector {
@@ -304,8 +195,6 @@
         }
 
         .custom-select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
             appearance: none;
             background-color: #ffffff;
             border: 2px solid var(--primary);
@@ -315,10 +204,7 @@
             color: var(--primary-dark);
             font-size: 1rem;
             cursor: pointer;
-            position: relative;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background-image:
-                url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%234346CA' stroke-width='2'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%234346CA' stroke-width='2'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.8rem center;
             background-size: 10px 7px;
@@ -329,18 +215,6 @@
             border-color: var(--primary-light);
             outline: none;
             box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
-        }
-
-        .custom-select option {
-            color: var(--font-color);
-        }
-
-        @media (max-width: 576px) {
-            .custom-select {
-                font-size: 0.9rem;
-                padding-right: 1rem;
-                border-radius: 10px;
-            }
         }
     </style>
 </head>
@@ -361,15 +235,12 @@
         </div>
     </div>
     <form id="dateForm" class="date-selector" method="get" action="">
-        <label for="month-select" class="visually-hidden">Месяц</label>
-        <select name="month" id="month-select" aria-label="Выбор месяца" class="custom-select">
+        <select name="month" id="month-select" class="custom-select">
             {% for num, name in months %}
                 <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ num }} — {{ name|capfirst }}</option>
             {% endfor %}
         </select>
-
-        <label for="year-select" class="visually-hidden">Год</label>
-        <select name="year" id="year-select" aria-label="Выбор года" class="custom-select">
+        <select name="year" id="year-select" class="custom-select">
             {% for y in years %}
                 <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
             {% endfor %}
@@ -396,17 +267,11 @@
                         <td class="empty"></td>
                     {% else %}
                         <td class="{% if day.is_current %}current-day{% endif %}"
-                            onclick="window.location.href='{% url 'AutoDoc:assignment_details' year=year month=month day=day.day_num %}'">
+                            onclick="window.location.href='{% url 'AutoDoc:assignment_details' year=year month=month day=day.day %}'">
                             <div class="day-number">{{ day.day }}</div>
                             {% if day.has_assignment %}
                                 <div class="assignments-indicator">
                                     <div class="assignment-dot"></div>
-                                    {% if day.assignments_count > 1 %}
-                                        <div class="assignment-dot"></div>
-                                    {% endif %}
-                                    {% if day.assignments_count > 2 %}
-                                        <div class="assignment-dot"></div>
-                                    {% endif %}
                                 </div>
                             {% endif %}
                         </td>
@@ -416,20 +281,7 @@
         {% endfor %}
         </tbody>
     </table>
-
-<!--    <div class="legend">-->
-<!--        <div class="legend-item">-->
-<!--            <div class="legend-color legend-today"></div>-->
-<!--            <span>Сегодня</span>-->
-<!--        </div>-->
-<!--        <div class="legend-item">-->
-<!--            <div class="legend-color legend-assignment"></div>-->
-<!--            <span>Наличие записи</span>-->
-<!--        </div>-->
-<!--    </div>-->
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     document.getElementById('month-select').addEventListener('change', function () {
