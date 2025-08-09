@@ -35,6 +35,23 @@ def post_api_data(endpoint, data):
         logger.error(f"API error ({endpoint}): {e.response.text if e.response else str(e)}")
         return None
 
+
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
+def get_cached_refs():
+    """Кэшируем справочники, чтобы не грузить каждый раз."""
+    return {
+        'cars': get_api_data("cars"),
+        'colors': get_api_data("colors"),
+        'works': get_api_data("works"),
+        'persons': get_api_data("persons"),
+        'roles': get_api_data("roles"),
+        'persons_status_true': get_api_data("persons-status")
+    }
+
+
+
 def calendar_view(request):
     try:
         current_date = datetime.now()
@@ -42,20 +59,15 @@ def calendar_view(request):
         month = int(request.GET.get('month', current_date.month))
 
         assignments = get_api_data("work-assignments", {'year': year, 'month': month})
-        logger.info(f"Assignments for {year}-{month}: {assignments}")
+        logger.info(f"Assignments for {year}-{month}: {len(assignments)} records")
 
         cal = calendar.monthcalendar(year, month)
+        days_with_assignments = {
+            datetime.fromisoformat(a['date']).day
+            for a in assignments if a.get('date')
+        }
+
         calendar_data = []
-
-        days_with_assignments = set()
-        for assignment in assignments:
-            try:
-                date_obj = datetime.fromisoformat(assignment['date'])
-                if date_obj.year == year and date_obj.month == month:
-                    days_with_assignments.add(date_obj.day)
-            except (ValueError, KeyError) as e:
-                logger.error(f"Error parsing date {assignment.get('date', 'None')}: {e}")
-
         for week in cal:
             week_data = []
             for day in week:
@@ -64,7 +76,6 @@ def calendar_view(request):
                     continue
                 week_data.append({
                     'day': day,
-                    'day_num': day,
                     'has_assignment': day in days_with_assignments,
                     'is_current': (day == current_date.day and month == current_date.month and year == current_date.year)
                 })
@@ -72,11 +83,6 @@ def calendar_view(request):
 
         prev_date = datetime(year, month, 1) - timedelta(days=1)
         next_date = datetime(year, month, 28) + timedelta(days=4)
-
-        # Формируем список месяцев с их названиями
-        months = [(i, calendar.month_name[i]) for i in range(1, 13)]
-        # Диапазон годов (5 лет назад - 5 лет вперед)
-        years = list(range(year - 5, year + 6))
 
         context = {
             'calendar_data': calendar_data,
@@ -88,8 +94,8 @@ def calendar_view(request):
             'next_year': next_date.year,
             'next_month': next_date.month,
             'current_day': current_date.day,
-            'months': months,
-            'years': years,
+            'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
+            'years': list(range(year - 5, year + 6)),
         }
         return render(request, 'AutoDoc/calendar.html', context)
 
@@ -123,17 +129,15 @@ def assignment_details_view(request, year, month, day):
     try:
         safe_set_locale()
         assignments = get_api_data("work-assignments", {'year': year, 'month': month, 'day': day})
-        logger.info(f"Assignments for {year}-{month}-{day}: {assignments}")
-
-        works = get_api_data("works")
-        work_assignments = []
+        works_for_day = []
 
         if assignments:
-            for assignment in assignments:
-                works_for_assignment = get_api_data(f"work-assignment-works?work_assignment_id={assignment['id']}")
-                persons = get_api_data("persons")  # Получаем список всех сотрудников
+            persons = get_cached_refs()['persons']
+            works = get_cached_refs()['works']
 
-                work_assignments.append({
+            for assignment in assignments:
+                wa_works = get_api_data(f"work-assignment-works?work_assignment_id={assignment['id']}")
+                works_for_day.append({
                     'id': assignment['id'],
                     'time': datetime.fromisoformat(assignment['date']).strftime('%H:%M'),
                     'vin': assignment.get('vin', ''),
@@ -145,27 +149,13 @@ def assignment_details_view(request, year, month, day):
                     'works': [
                         {
                             'work_id': w['work_id'],
-                            'work_name': next((work['name'] for work in works if work['id'] == w['work_id']),
-                                              'Неизвестная работа'),
+                            'work_name': next((wrk['name'] for wrk in works if wrk['id'] == w['work_id']), 'Неизвестная работа'),
                             'employee_id': w['executor_id'],
-                            'employee_name': next(
-                                (person['full_name'] for person in persons if person['id'] == w['executor_id']),
-                                'Не назначен'),
+                            'employee_name': next((p['full_name'] for p in persons if p['id'] == w['executor_id']), 'Не назначен'),
                             'status': w['status']
                         }
-                        for w in works_for_assignment
+                        for w in wa_works
                     ]
-                })
-
-        # Группировка по имени сотрудника
-        grouped_assignments = []
-        if work_assignments:
-            # Сортируем по person_name для корректной работы groupby
-            work_assignments.sort(key=itemgetter('person_name'))
-            for person_name, group in groupby(work_assignments, key=itemgetter('person_name')):
-                grouped_assignments.append({
-                    'person_name': person_name,
-                    'assignments': list(group)
                 })
 
         context = {
@@ -173,20 +163,13 @@ def assignment_details_view(request, year, month, day):
             'month': month,
             'month_name': calendar.month_name[month],
             'year': year,
-            'assignments': grouped_assignments if grouped_assignments else work_assignments,
-            'works': works,
-            'cars': get_api_data("cars"),
-            'colors': get_api_data("colors"),
-            'persons': get_api_data("persons"),
-            'persons_status_true' : get_api_data("persons-status")
-        }
-
-        context.update({
+            'assignments': works_for_day,
+            **get_cached_refs(),
             'hours': list(range(8, 20)),
             'minutes': list(range(0, 60, 5))
-        })
-
+        }
         return render(request, 'AutoDoc/assignment_details.html', context)
+
     except Exception as e:
         logger.error(f"Error in assignment_details_view: {e}")
         return JsonResponse({'error': str(e)}, status=500)
