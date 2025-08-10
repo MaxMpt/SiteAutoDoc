@@ -503,7 +503,7 @@
             background: white;
             max-height: 150px;
             overflow-y: auto;
-            width: 100%; /* Match the width of the input */
+            width: 100%;
             z-index: 1000;
             display: none;
             border-radius: 8px;
@@ -991,6 +991,11 @@
 
             // Initialize work search dropdown
             function initWorkSearch(input, listBox) {
+                // Remove existing event listeners to prevent duplicates
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                input = newInput;
+
                 // Remove any existing suggestion box to prevent duplicates
                 const existingListBox = input.parentElement.querySelector('.suggestions-box');
                 if (existingListBox && existingListBox !== listBox) {
