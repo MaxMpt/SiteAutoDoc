@@ -844,12 +844,10 @@
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label for="edit_car_id" class="form-label">Машина</label>
-                            <input type="text" class="form-control" id="edit_car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
-                            <datalist id="carOptions">
-                                {% for car in cars %}
-                                    <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
-                                {% endfor %}
-                            </datalist>
+                             <div style="position: relative;">
+                                    <input type="text" id="carSearch" class="form-control" placeholder="Выберите машину">
+                                    <div id="carList" class="suggestions-box"></div>
+                             </div>
                         </div>
                         <div class="col-md-6">
                             <label for="edit_car_number" class="form-label">Номер машины</label>
