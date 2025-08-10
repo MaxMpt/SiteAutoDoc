@@ -503,7 +503,7 @@
             background: white;
             max-height: 150px;
             overflow-y: auto;
-            width: calc(100% - 170px); /* Учитываем ширину select и кнопки */
+            width: 100%; /* Match the width of the input */
             z-index: 1000;
             display: none;
             border-radius: 8px;
@@ -522,13 +522,6 @@
         .suggestion-item:hover {
             background-color: #f0f0f0;
         }
-
-        @media (min-width: 576px) {
-            .suggestions-box {
-                width: calc(100% - 200px); /* Адаптация для больших экранов */
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -544,12 +537,6 @@
                 </a>
             </div>
         </div>
-
-        {% comment %}
-            Ниже: шаблон теперь поддерживает два формата `assignments`:
-            1) grouped: [{ person_name: "...", assignments: [ {...}, {...} ] }, ...]
-            2) flat: [ {...}, {...}, ... ]  (каждый элемент — одно назначение)
-        {% endcomment %}
 
         {% if assignments %}
             <div class="columns-container">
@@ -757,7 +744,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="color_id" class="form-label">Цвет</label>
-                                <input type="text" class="form-control" id="color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <input type="text" id="color_id" class="form-control" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
                                 <datalist id="colorOptions">
                                     {% for color in colors %}
                                         <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
@@ -1004,6 +991,12 @@
 
             // Initialize work search dropdown
             function initWorkSearch(input, listBox) {
+                // Remove any existing suggestion box to prevent duplicates
+                const existingListBox = input.parentElement.querySelector('.suggestions-box');
+                if (existingListBox && existingListBox !== listBox) {
+                    existingListBox.remove();
+                }
+
                 input.addEventListener('input', function() {
                     const value = this.value.toLowerCase();
                     listBox.innerHTML = '';
@@ -1050,28 +1043,28 @@
             // Initialize work search for create modal
             function initWorkInputs() {
                 document.querySelectorAll('#workItems input[list="workOptions"]').forEach(input => {
-                    let listBox = input.nextElementSibling;
-                    if (!listBox || !listBox.classList.contains('suggestions-box')) {
+                    let listBox = input.parentElement.querySelector('.suggestions-box');
+                    if (!listBox) {
                         listBox = document.createElement('div');
                         listBox.className = 'suggestions-box';
                         listBox.id = `workList_${input.id}`;
                         input.parentElement.insertBefore(listBox, input.nextElementSibling);
-                        initWorkSearch(input, listBox);
                     }
+                    initWorkSearch(input, listBox);
                 });
             }
 
             // Initialize work search for edit modal
             function initEditWorkInputs() {
                 document.querySelectorAll('#editWorkItems input[list="workOptions"]').forEach(input => {
-                    let listBox = input.nextElementSibling;
-                    if (!listBox || !listBox.classList.contains('suggestions-box')) {
+                    let listBox = input.parentElement.querySelector('.suggestions-box');
+                    if (!listBox) {
                         listBox = document.createElement('div');
                         listBox.className = 'suggestions-box';
                         listBox.id = `editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`;
                         input.parentElement.insertBefore(listBox, input.nextElementSibling);
-                        initWorkSearch(input, listBox);
                     }
+                    initWorkSearch(input, listBox);
                 });
             }
 
