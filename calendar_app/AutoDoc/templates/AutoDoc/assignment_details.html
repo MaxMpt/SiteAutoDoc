@@ -794,8 +794,7 @@
                        <div id="workItems">
                             <div class="work-input-group mb-3">
                                 <div class="d-flex align-items-center gap-2 w-100">
-                                    <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                                        <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                                     <select class="form-select work-employee-select" name="work_employees[]" required>
                                         <option value="">Выберите сотрудника</option>
                                         {% for person in persons %}
@@ -806,7 +805,6 @@
                                     <button type="button" class="btn btn-danger remove-work-btn">
                                         <i class="fas fa-times"></i>
                                     </button>
-                                    </div>
                                 </div>
                             </div>
                        </div>
@@ -925,9 +923,10 @@
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
             <div class="d-flex align-items-center gap-2 w-100">
-                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                    <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
-               
+                <div style="position: relative;">
+                    <input type="text" id="workSearch" class="form-control" placeholder="Выберите машину">
+                    <div id="workList" class="suggestions-box"></div>
+                </div>
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
                     {% for person in persons %}
@@ -938,7 +937,6 @@
                 <button type="button" class="btn btn-danger remove-work-btn">
                     <i class="fas fa-times"></i>
                 </button>
-                </div>
             </div>
         </div>
     </template>
@@ -983,69 +981,41 @@
         }
     });
 
+        const cars = [
+        {% for car in cars %}
+            { id: "{{ car.id }}", name: "{{ car.name }}" },
+        {% endfor %}
+    ];
 
-        const worksList = [
-            {% for work in works %}
-                { id: "{{ work.id }}", name: "{{ work.name }}" },
-            {% endfor %}
-        ];
-        
-        // Функция подключения автоподбора к конкретному input
-        function initWorkAutocomplete(input) {
-            // Создаём контейнер для списка
-            let listBox = document.createElement('div');
-            listBox.className = 'suggestions-box';
-            input.parentNode.style.position = 'relative';
-            input.parentNode.appendChild(listBox);
-        
-            input.addEventListener('input', function () {
-                const value = this.value.toLowerCase();
-                listBox.innerHTML = '';
-                const filtered = worksList.filter(work => work.name.toLowerCase().includes(value));
-        
-                filtered.slice(0, 50).forEach(work => {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.textContent = work.name;
-                    item.dataset.id = work.id;
-                    item.addEventListener('click', () => {
-                        input.value = work.name;
-                        input.setAttribute('data-id', work.id);
-                        listBox.style.display = 'none';
-                    });
-                    listBox.appendChild(item);
-                });
-        
-                listBox.style.display = filtered.length ? 'block' : 'none';
+    const input_w = document.getElementById('workSearch');
+    const listBox_w = document.getElementById('workList');
+
+    input.addEventListener('input', function() {
+        const value = this.value.toLowerCase();
+        listBox_w.innerHTML = '';
+        const filtered = works.filter(work => work.name.toLowerCase().includes(value));
+
+        filtered.slice(0, 50).forEach(work => { // ограничим до 50 найденных
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.textContent = work.name;
+            item.dataset.id = work.id;
+            item.addEventListener('click', () => {
+                input_w.value = work.name;
+                listBox_w.style.display = 'none';
+                // Тут можно записать car.id в скрытое поле, если нужно
             });
-        
-            document.addEventListener('click', function (e) {
-                if (!listBox.contains(e.target) && e.target !== input) {
-                    listBox.style.display = 'none';
-                }
-            });
+            listBox_w.appendChild(item);
+        });
+
+        listBox_w.style.display = filtered.length ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!listBox_w.contains(e.target) && e.target !== input) {
+            listBox_w.style.display = 'none';
         }
-        
-        // Инициализация для уже существующих полей при загрузке страницы
-        document.querySelectorAll('input[name="work_ids[]"], .edit-work-id').forEach(input => {
-            initWorkAutocomplete(input);
-        });
-        
-        // Подключение автоподбора при добавлении новой работы (создание)
-        document.getElementById('addWork').addEventListener('click', function () {
-            setTimeout(() => {
-                const lastInput = document.querySelector('#workItems .work-input-group:last-child input[name="work_ids[]"]');
-                if (lastInput) initWorkAutocomplete(lastInput);
-            }, 50);
-        });
-        
-        // Подключение автоподбора при добавлении новой работы (редактирование)
-        document.getElementById('addEditWork').addEventListener('click', function () {
-            setTimeout(() => {
-                const lastInput = document.querySelector('#editWorkItems .work-input-group:last-child .edit-work-id');
-                if (lastInput) initWorkAutocomplete(lastInput);
-            }, 50);
-        });
+    });
         
     document.addEventListener('DOMContentLoaded', function() {
         let workCount = 1;
