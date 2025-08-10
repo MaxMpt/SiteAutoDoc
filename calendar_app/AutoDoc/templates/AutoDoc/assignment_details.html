@@ -563,34 +563,40 @@
                                         <i class="fas fa-tasks me-2"></i>Работы:
                                     </h6>
 
-                                    <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
+                                   <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
                                         <ul class="work-list">
-                                            {% for work in assignment.works %}
-                                                <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
-                                                    <div class="work-info">
-                                                        <input type="checkbox" class="form-check-input custom-checkbox me-2"
-                                                               id="work_{{ assignment.id }}_{{ work.work_id }}"
-                                                               name="work_status" value="{{ work.work_id }}"
-                                                               {% if work.status %}checked{% endif %}>
-                                                        <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
-                                                            <span class="work-status {% if work.status %}completed{% endif %}"></span>
-                                                            <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
-                                                        </label>
-                                                    </div>
-                                                    {% if work.employee_name %}
-                                                        <strong class="text-muted" style="font-size: 0.8rem;">({{ work.employee_name }})</strong>
-                                                    {% endif %}
+                                            {% for executor in assignment.works %}
+                                                <li>
+                                                    <strong style="font-size: 0.9rem; color: #555;">{{ executor.employee_name }}</strong>
+                                                    <ul>
+                                                        {% for work in executor.works %}
+                                                            <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
+                                                                <div class="work-info">
+                                                                    <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                                           id="work_{{ assignment.id }}_{{ work.work_id }}"
+                                                                           name="work_status" value="{{ work.work_id }}"
+                                                                           {% if work.status %}checked{% endif %}>
+                                                                    <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
+                                                                        <span class="work-status {% if work.status %}completed{% endif %}"></span>
+                                                                        <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        {% empty %}
+                                                            <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
+                                                        {% endfor %}
+                                                    </ul>
                                                 </li>
                                             {% empty %}
                                                 <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
                                             {% endfor %}
                                         </ul>
-
+                                    
                                         <div class="assignment-footer">
                                             <button type="button" class="btn btn-primary btn-sm" onclick="openEditModal({{ assignment.id }})" title="Редактировать запись">
                                                 <i class="fas fa-edit me-1"></i> Изменить
                                             </button>
-
+                                    
                                             <button type="button" class="btn btn-success btn-sm" onclick="saveWorkStatus({{ assignment.id }})">
                                                 <i class="fas fa-save me-1"></i> Сохранить
                                             </button>
