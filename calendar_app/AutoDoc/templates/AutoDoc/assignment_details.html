@@ -923,7 +923,9 @@
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
             <div class="d-flex align-items-center gap-2 w-100">
-                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
+                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                    <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
+                </div>
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
                     {% for person in persons %}
