@@ -493,25 +493,27 @@
                 font-size: 16px;
             }
         }
-        /* выпадайка */
+        
+
         .suggestions-box {
             position: absolute;
+            top: 100%; /* Position below the input */
+            left: 0;
             border: 1px solid #ccc;
             background: white;
-            max-height: 150px; /* Высота примерно на 5 элементов */
+            max-height: 150px;
             overflow-y: auto;
-            width: 100%;
+            width: calc(100% - 170px); /* Match input width, accounting for select and button */
             z-index: 1000;
             display: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
-        .suggestion-item {
-            padding: 8px;
-            cursor: pointer;
-        }
-        
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
+        @media (min-width: 576px) {
+            .suggestions-box {
+                width: calc(100% - 200px); /* Adjust for larger screens */
+            }
         }
 
 
@@ -945,557 +947,561 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         const cars = [
-    {% for car in cars %}
-        { id: "{{ car.id }}", name: "{{ car.name }}" },
-    {% endfor %}
-];
-
-const works = [
-    {% for work in works %}
-        { id: "{{ work.id }}", name: "{{ work.name }}" },
-    {% endfor %}
-];
-
-document.addEventListener('DOMContentLoaded', function() {
-    let workCount = 1;
-    const addWorkButton = document.getElementById('addWork');
-    const workItems = document.getElementById('workItems');
-    const createForm = document.getElementById('createAssignmentForm');
-
-    // Initialize car search dropdown
-    function initCarSearch(input, listBox) {
-        input.addEventListener('input', function() {
-            const value = this.value.toLowerCase();
-            listBox.innerHTML = '';
-            const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
-
-            filtered.slice(0, 50).forEach(car => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.textContent = car.name;
-                item.dataset.id = car.id;
-                item.addEventListener('click', () => {
-                    input.value = car.name;
-                    input.dataset.id = car.id;
-                    listBox.style.display = 'none';
-                });
-                listBox.appendChild(item);
-            });
-
-            listBox.style.display = filtered.length ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!listBox.contains(e.target) && e.target !== input) {
-                listBox.style.display = 'none';
-            }
-        });
-    }
-
-    // Initialize work search dropdown
-    function initWorkSearch(input, listBox) {
-        input.addEventListener('input', function() {
-            const value = this.value.toLowerCase();
-            listBox.innerHTML = '';
-            const filtered = works.filter(work => work.name.toLowerCase().includes(value));
-
-            filtered.slice(0, 50).forEach(work => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.textContent = work.name;
-                item.dataset.id = work.id;
-                item.addEventListener('click', () => {
-                    input.value = work.name;
-                    input.dataset.id = work.id;
-                    listBox.style.display = 'none';
-                    updateDataId(input);
-                });
-                listBox.appendChild(item);
-            });
-
-            listBox.style.display = filtered.length ? 'block' : 'none';
-        });
-
-        document.addEventListener('click', function(e) {
-            if (!listBox.contains(e.target) && e.target !== input) {
-                listBox.style.display = 'none';
-            }
-        });
-    }
-
-    // Initialize car search for create modal
-    const carInput = document.getElementById('carSearch');
-    const carListBox = document.getElementById('carList');
-    if (carInput && carListBox) {
-        initCarSearch(carInput, carListBox);
-    }
-
-    // Initialize car search for edit modal
-    const editCarInput = document.getElementById('edit_car_search');
-    const editCarListBox = document.getElementById('edit_car_list');
-    if (editCarInput && editCarListBox) {
-        initCarSearch(editCarInput, editCarListBox);
-    }
-
-    // Initialize work search for create modal
-    function initWorkInputs() {
-        document.querySelectorAll('#workItems input[list="workOptions"]').forEach(input => {
-            const listBox = document.createElement('div');
-            listBox.className = 'suggestions-box';
-            listBox.id = `workList_${input.id}`;
-            input.parentElement.style.position = 'relative';
-            input.parentElement.appendChild(listBox);
-            initWorkSearch(input, listBox);
-        });
-    }
-
-    // Initialize work search for edit modal
-    function initEditWorkInputs() {
-        document.querySelectorAll('#editWorkItems input[list="workOptions"]').forEach(input => {
-            const listBox = document.createElement('div');
-            listBox.className = 'suggestions-box';
-            listBox.id = `editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`;
-            input.parentElement.style.position = 'relative';
-            input.parentElement.appendChild(listBox);
-            initWorkSearch(input, listBox);
-        });
-    }
-
-    initWorkInputs();
-
-    window.deleteAssignment = function(assignmentId) {
-        if (confirm('Вы уверены, что хотите удалить эту запись?')) {
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
-            fetch(`/delete-assignment/${assignmentId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                credentials: 'include'
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Запись успешно удалена');
-                    location.reload();
-                } else {
-                    return response.json().then(err => {
-                        throw new Error(err.error || 'Ошибка сервера');
+            {% for car in cars %}
+                { id: "{{ car.id }}", name: "{{ car.name }}" },
+            {% endfor %}
+        ];
+        
+        const works = [
+            {% for work in works %}
+                { id: "{{ work.id }}", name: "{{ work.name }}" },
+            {% endfor %}
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            let workCount = 1;
+            const addWorkButton = document.getElementById('addWork');
+            const workItems = document.getElementById('workItems');
+            const createForm = document.getElementById('createAssignmentForm');
+        
+            // Initialize car search dropdown
+            function initCarSearch(input, listBox) {
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    listBox.innerHTML = '';
+                    const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
+        
+                    filtered.slice(0, 50).forEach(car => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.textContent = car.name;
+                        item.dataset.id = car.id;
+                        item.addEventListener('click', () => {
+                            input.value = car.name;
+                            input.dataset.id = car.id;
+                            listBox.style.display = 'none';
+                        });
+                        listBox.appendChild(item);
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert(`Не удалось удалить запись: ${error.message}`);
-            });
-        }
-    };
-
-    function updateDataId(input) {
-        const datalistId = input.getAttribute('list');
-        if (!datalistId) return;
-
-        const datalist = document.getElementById(datalistId);
-        if (!datalist) return;
-
-        const options = datalist.querySelectorAll('option');
-        for (let option of options) {
-            if (option.value === input.value) {
-                input.setAttribute('data-id', option.getAttribute('data-id') || '');
-                return;
-            }
-        }
-        input.setAttribute('data-id', '');
-    }
-
-    function initDatalistInputs(inputs) {
-        inputs.forEach(input => {
-            input.addEventListener('input', () => updateDataId(input));
-            input.addEventListener('change', () => updateDataId(input));
-            if (input.value) updateDataId(input);
-        });
-    }
-
-    initDatalistInputs(document.querySelectorAll('input[list]'));
-
-    addWorkButton.addEventListener('click', function() {
-        if (workCount < 100) {
-            const newWorkItem = document.createElement('div');
-            newWorkItem.className = 'work-input-group mb-3';
-            newWorkItem.innerHTML = `
-                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                    <input type="text" class="form-control" id="work_id_${workCount}"
-                           name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                    <div class="suggestions-box" id="workList_work_id_${workCount}"></div>
-                    <select class="form-select work-employee-select" name="work_employees[]">
-                        <option value="">Выберите сотрудника</option>
-                        {% for person in persons %}
-                            <option value="{{ person.id }}">{{ person.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" class="btn btn-danger remove-work-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `;
-            workItems.appendChild(newWorkItem);
-            initWorkSearch(document.getElementById(`work_id_${workCount}`), document.getElementById(`workList_work_id_${workCount}`));
-            workCount++;
-
-            document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
-            initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
-        } else {
-            alert('Максимум 100 работ.');
-        }
-    });
-
-    workItems.addEventListener('click', function(e) {
-        if (e.target.closest('.remove-work-btn')) {
-            const workGroup = e.target.closest('.work-input-group');
-            workGroup.remove();
-            workCount--;
-
-            if (document.querySelectorAll('.work-input-group').length <= 1) {
-                document.querySelectorAll('.remove-work-btn').forEach(btn => {
-                    btn.style.display = 'none';
+        
+                    listBox.style.display = filtered.length ? 'block' : 'none';
                 });
-            }
-        }
-    });
-
-    createForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-    
-        let hasEmptyEmployee = false;
-        document.querySelectorAll('.work-employee-select').forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                hasEmptyEmployee = true;
-            } else {
-                select.classList.remove('is-invalid');
-            }
-        });
-    
-        if (hasEmptyEmployee) {
-            alert('Пожалуйста, укажите исполнителя для каждой работы');
-            return;
-        }
-    
-        let carId = null;
-        const carName = document.getElementById('carSearch').value;
-        const selectedCar = cars.find(car => car.name === carName);
-        if (selectedCar) {
-            carId = selectedCar.id;
-        }
-    
-        const formData = {
-            vin: document.getElementById('vin').value,
-            car_id: carId,
-            car_number: document.getElementById('car_number').value,
-            color_id: document.getElementById('color_id').getAttribute('data-id'),
-            person_id: document.getElementById('person_id').getAttribute('data-id'),
-            description: document.getElementById('description').value,
-            hour: document.getElementById('hour').value,
-            minute: document.getElementById('minute').value,
-            works: []
-        };
-    
-        if (!formData.color_id || !formData.person_id) {
-            alert('Пожалуйста, выберите цвет и сотрудника из списка');
-            return;
-        }
-    
-        document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
-            const workId = input.getAttribute('data-id');
-            const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
-            if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
-        });
-    
-        if (formData.works.length === 0) {
-            alert('Пожалуйста, добавьте хотя бы одну работу');
-            return;
-        }
-    
-        try {
-            const response = await fetch(createForm.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(formData)
-            });
-    
-            const result = await response.json();
-            if (result.success) {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
-                modal.hide();
-                window.location.href = result.redirect_url || window.location.href;
-            } else {
-                alert(result.error || 'Произошла ошибка при создании записи');
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
-        }
-    });
-
-    document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
-        createForm.reset();
-        workItems.innerHTML = `
-            <div class="work-input-group mb-3">
-                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                    <div class="suggestions-box" id="workList_work_id_0"></div>
-                    <select class="form-select work-employee-select" name="work_employees[]">
-                        <option value="">Выберите сотрудника</option>
-                        {% for person in persons %}
-                            <option value="{{ person.id }}">{{ person.full_name }}</option>
-                        {% endfor %}
-                    </select>
-                    <button type="button" class="btn btn-danger remove-work-btn">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-        workCount = 1;
-        document.querySelectorAll('input[list]').forEach(input => {
-            input.removeAttribute('data-id');
-        });
-        initDatalistInputs(document.querySelectorAll('input[list]'));
-        initWorkInputs();
-    });
-
-    window.saveWorkStatus = function(assignmentId) {
-        const form = document.getElementById(`workStatusForm_${assignmentId}`);
-        const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
-            .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
-
-        fetch(`/update-work-status/${assignmentId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({ updates })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Статусы сохранены успешно');
-                location.reload();
-            } else {
-                alert('Ошибка при сохранении статусов');
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при сохранении');
-        });
-    };
-
-    window.openEditModal = function(assignmentId) {
-        fetch(`/get-assignment/${assignmentId}/`)
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка загрузки данных');
-                return response.json();
-            })
-            .then(data => {
-                console.log('Полученные данные:', data);
-    
-                document.getElementById('edit_assignment_id').value = data.id || '';
-                document.getElementById('edit_date').value = data.date || '';
-                
-                const editCarSearch = document.getElementById('edit_car_search');
-                const editCarId = document.getElementById('edit_car_id');
-                editCarSearch.value = data.car?.name || '';
-                editCarId.value = data.car?.id || '';
-                
-                document.getElementById('edit_car_number').value = data.car_number || '';
-                document.getElementById('edit_vin').value = data.vin || '';
-                
-                const editColorId = document.getElementById('edit_color_id');
-                editColorId.value = data.color?.name || '';
-                editColorId.setAttribute('data-id', data.color?.id || '');
-                
-                const editPersonId = document.getElementById('edit_person_id');
-                editPersonId.value = data.person?.full_name || '';
-                editPersonId.setAttribute('data-id', data.person?.id || '');
-                
-                document.getElementById('edit_description').value = data.description || '';
-    
-                const dateObj = new Date(data.date);
-                document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
-                document.getElementById('edit_hour').value = dateObj.getHours() || 0;
-                document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-    
-                const workItemsContainer = document.getElementById('editWorkItems');
-                workItemsContainer.innerHTML = '';
-                
-                (data.work_assignment_works || []).forEach(work => {
-                    const workTemplate = document.getElementById('editWorkTemplate');
-                    if (workTemplate) {
-                        const workClone = workTemplate.content.cloneNode(true);
-                        const workInput = workClone.querySelector('.edit-work-id');
-                        const employeeSelect = workClone.querySelector('.edit-work-employee');
-    
-                        workInput.value = work.work?.name || '';
-                        workInput.setAttribute('data-id', work.work_id || '');
-                        employeeSelect.value = work.executor_id || '';
-    
-                        const statusInput = document.createElement('input');
-                        statusInput.type = 'hidden';
-                        statusInput.className = 'edit-work-status';
-                        statusInput.name = 'work_statuses[]';
-                        statusInput.value = work.status ? '1' : '0';
-    
-                        workClone.querySelector('.d-flex').appendChild(statusInput);
-                        workItemsContainer.appendChild(workClone);
+        
+                document.addEventListener('click', function(e) {
+                    if (!listBox.contains(e.target) && e.target !== input) {
+                        listBox.style.display = 'none';
                     }
                 });
-    
-                initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
-                initEditWorkInputs();
-    
-                const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
-                editModal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Не удалось загрузить данные для редактирования: ' + error.message);
-            });
-    };
-
-    document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        let hasEmptyEmployee = false;
-        document.querySelectorAll('.edit-work-employee').forEach(select => {
-            if (!select.value) {
-                select.classList.add('is-invalid');
-                hasEmptyEmployee = true;
-            } else {
-                select.classList.remove('is-invalid');
             }
-        });
-
-        if (hasEmptyEmployee) {
-            alert('Пожалуйста, укажите исполнителя для каждой работы');
-            return;
-        }
-
-        const form = e.target;
-        const submitBtn = form.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-
-        try {
-            const formData = {
-                id: document.getElementById('edit_assignment_id').value,
-                date: document.getElementById('edit_date_picker').value + 'T' +
-                     String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
-                     String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
-                car_id: document.getElementById('edit_car_id').value,
-                car_number: document.getElementById('edit_car_number').value,
-                vin: document.getElementById('edit_vin').value,
-                color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
-                person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
-                description: document.getElementById('edit_description').value,
-                works: []
-            };
-
-            document.querySelectorAll('.edit-work-id').forEach((input, index) => {
-                const workId = input.getAttribute('data-id');
-                const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
-                const statusInput = document.querySelectorAll('.edit-work-status')[index];
-
-                const employeeId = employeeSelect ? employeeSelect.value : null;
-                const status = statusInput ? statusInput.value === '1' : false;
-
-                if (workId && workId !== '') {
-                    formData.works.push({
-                        work_id: parseInt(workId),
-                        executor_id: employeeId ? parseInt(employeeId) : null,
-                        status: status
+        
+            // Initialize work search dropdown
+            function initWorkSearch(input, listBox) {
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    listBox.innerHTML = '';
+                    const filtered = works.filter(work => work.name.toLowerCase().includes(value));
+        
+                    filtered.slice(0, 50).forEach(work => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.textContent = work.name;
+                        item.dataset.id = work.id;
+                        item.addEventListener('click', () => {
+                            input.value = work.name;
+                            input.dataset.id = work.id;
+                            listBox.style.display = 'none';
+                            updateDataId(input);
+                        });
+                        listBox.appendChild(item);
+                    });
+        
+                    listBox.style.display = filtered.length ? 'block' : 'none';
+                });
+        
+                document.addEventListener('click', function(e) {
+                    if (!listBox.contains(e.target) && e.target !== input) {
+                        listBox.style.display = 'none';
+                    }
+                });
+            }
+        
+            // Initialize car search for create modal
+            const carInput = document.getElementById('carSearch');
+            const carListBox = document.getElementById('carList');
+            if (carInput && carListBox) {
+                initCarSearch(carInput, carListBox);
+            }
+        
+            // Initialize car search for edit modal
+            const editCarInput = document.getElementById('edit_car_search');
+            const editCarListBox = document.getElementById('edit_car_list');
+            if (editCarInput && editCarListBox) {
+                initCarSearch(editCarInput, editCarListBox);
+            }
+        
+            // Initialize work search for create modal
+            function initWorkInputs() {
+                document.querySelectorAll('#workItems input[list="workOptions"]').forEach(input => {
+                    // Check if suggestion box already exists to prevent duplicates
+                    let listBox = document.getElementById(`workList_${input.id}`);
+                    if (!listBox) {
+                        listBox = document.createElement('div');
+                        listBox.className = 'suggestions-box';
+                        listBox.id = `workList_${input.id}`;
+                        input.parentElement.style.position = 'relative';
+                        input.parentElement.appendChild(listBox);
+                        initWorkSearch(input, listBox);
+                    }
+                });
+            }
+        
+            // Initialize work search for edit modal
+            function initEditWorkInputs() {
+                document.querySelectorAll('#editWorkItems input[list="workOptions"]').forEach(input => {
+                    // Check if suggestion box already exists to prevent duplicates
+                    let listBox = document.getElementById(`editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`);
+                    if (!listBox) {
+                        listBox = document.createElement('div');
+                        listBox.className = 'suggestions-box';
+                        listBox.id = `editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`;
+                        input.parentElement.style.position = 'relative';
+                        input.parentElement.appendChild(listBox);
+                        initWorkSearch(input, listBox);
+                    }
+                });
+            }
+        
+            initWorkInputs();
+        
+            window.deleteAssignment = function(assignmentId) {
+                if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    
+                    fetch(`/delete-assignment/${assignmentId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        credentials: 'include'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Запись успешно удалена');
+                            location.reload();
+                        } else {
+                            return response.json().then(err => {
+                                throw new Error(err.error || 'Ошибка сервера');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        alert(`Не удалось удалить запись: ${error.message}`);
                     });
                 }
+            };
+        
+            function updateDataId(input) {
+                const datalistId = input.getAttribute('list');
+                if (!datalistId) return;
+        
+                const datalist = document.getElementById(datalistId);
+                if (!datalist) return;
+        
+                const options = datalist.querySelectorAll('option');
+                for (let option of options) {
+                    if (option.value === input.value) {
+                        input.setAttribute('data-id', option.getAttribute('data-id') || '');
+                        return;
+                    }
+                }
+                input.setAttribute('data-id', '');
+            }
+        
+            function initDatalistInputs(inputs) {
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => updateDataId(input));
+                    input.addEventListener('change', () => updateDataId(input));
+                    if (input.value) updateDataId(input);
+                });
+            }
+        
+            initDatalistInputs(document.querySelectorAll('input[list]'));
+        
+            addWorkButton.addEventListener('click', function() {
+                if (workCount < 100) {
+                    const newWorkItem = document.createElement('div');
+                    newWorkItem.className = 'work-input-group mb-3';
+                    newWorkItem.innerHTML = `
+                        <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                            <input type="text" class="form-control" id="work_id_${workCount}"
+                                   name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                            <div class="suggestions-box" id="workList_work_id_${workCount}"></div>
+                            <select class="form-select work-employee-select" name="work_employees[]">
+                                <option value="">Выберите сотрудника</option>
+                                {% for person in persons %}
+                                    <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-danger remove-work-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                    workItems.appendChild(newWorkItem);
+                    initWorkSearch(document.getElementById(`work_id_${workCount}`), document.getElementById(`workList_work_id_${workCount}`));
+                    workCount++;
+        
+                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+                    initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
+                } else {
+                    alert('Максимум 100 работ.');
+                }
             });
-
-            console.log('Отправляемые данные:', formData);
-
-            const response = await fetch('/update-assignment/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(formData)
+        
+            workItems.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-work-btn')) {
+                    const workGroup = e.target.closest('.work-input-group');
+                    workGroup.remove();
+                    workCount--;
+        
+                    if (document.querySelectorAll('.work-input-group').length <= 1) {
+                        document.querySelectorAll('.remove-work-btn').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    }
+                }
             });
-
-            const result = await response.json();
-            if (response.ok && result.success) {
-                showAlert('Изменения успешно сохранены', 'success');
+        
+            createForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+            
+                let hasEmptyEmployee = false;
+                document.querySelectorAll('.work-employee-select').forEach(select => {
+                    if (!select.value) {
+                        select.classList.add('is-invalid');
+                        hasEmptyEmployee = true;
+                    } else {
+                        select.classList.remove('is-invalid');
+                    }
+                });
+            
+                if (hasEmptyEmployee) {
+                    alert('Пожалуйста, укажите исполнителя для каждой работы');
+                    return;
+                }
+            
+                let carId = null;
+                const carName = document.getElementById('carSearch').value;
+                const selectedCar = cars.find(car => car.name === carName);
+                if (selectedCar) {
+                    carId = selectedCar.id;
+                }
+            
+                const formData = {
+                    vin: document.getElementById('vin').value,
+                    car_id: carId,
+                    car_number: document.getElementById('car_number').value,
+                    color_id: document.getElementById('color_id').getAttribute('data-id'),
+                    person_id: document.getElementById('person_id').getAttribute('data-id'),
+                    description: document.getElementById('description').value,
+                    hour: document.getElementById('hour').value,
+                    minute: document.getElementById('minute').value,
+                    works: []
+                };
+            
+                if (!formData.color_id || !formData.person_id) {
+                    alert('Пожалуйста, выберите цвет и сотрудника из списка');
+                    return;
+                }
+            
+                document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
+                    const workId = input.getAttribute('data-id');
+                    const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
+                    if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
+                });
+            
+                if (formData.works.length === 0) {
+                    alert('Пожалуйста, добавьте хотя бы одну работу');
+                    return;
+                }
+            
+                try {
+                    const response = await fetch(createForm.action, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(formData)
+                    });
+            
+                    const result = await response.json();
+                    if (result.success) {
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
+                        modal.hide();
+                        window.location.href = result.redirect_url || window.location.href;
+                    } else {
+                        alert(result.error || 'Произошла ошибка при создании записи');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
+                }
+            });
+        
+            document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
+                createForm.reset();
+                workItems.innerHTML = `
+                    <div class="work-input-group mb-3">
+                        <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                            <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                            <div class="suggestions-box" id="workList_work_id_0"></div>
+                            <select class="form-select work-employee-select" name="work_employees[]">
+                                <option value="">Выберите сотрудника</option>
+                                {% for person in persons %}
+                                    <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn btn-danger remove-work-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                workCount = 1;
+                document.querySelectorAll('input[list]').forEach(input => {
+                    input.removeAttribute('data-id');
+                });
+                initDatalistInputs(document.querySelectorAll('input[list]'));
+                initWorkInputs();
+            });
+        
+            window.saveWorkStatus = function(assignmentId) {
+                const form = document.getElementById(`workStatusForm_${assignmentId}`);
+                const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
+                    .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
+        
+                fetch(`/update-work-status/${assignmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ updates })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Статусы сохранены успешно');
+                        location.reload();
+                    } else {
+                        alert('Ошибка при сохранении статусов');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при сохранении');
+                });
+            };
+        
+            window.openEditModal = function(assignmentId) {
+                fetch(`/get-assignment/${assignmentId}/`)
+                    .then(response => {
+                        if (!response.ok) throw new Error('Ошибка загрузки данных');
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Полученные данные:', data);
+            
+                        document.getElementById('edit_assignment_id').value = data.id || '';
+                        document.getElementById('edit_date').value = data.date || '';
+                        
+                        const editCarSearch = document.getElementById('edit_car_search');
+                        const editCarId = document.getElementById('edit_car_id');
+                        editCarSearch.value = data.car?.name || '';
+                        editCarId.value = data.car?.id || '';
+                        
+                        document.getElementById('edit_car_number').value = data.car_number || '';
+                        document.getElementById('edit_vin').value = data.vin || '';
+                        
+                        const editColorId = document.getElementById('edit_color_id');
+                        editColorId.value = data.color?.name || '';
+                        editColorId.setAttribute('data-id', data.color?.id || '');
+                        
+                        const editPersonId = document.getElementById('edit_person_id');
+                        editPersonId.value = data.person?.full_name || '';
+                        editPersonId.setAttribute('data-id', data.person?.id || '');
+                        
+                        document.getElementById('edit_description').value = data.description || '';
+            
+                        const dateObj = new Date(data.date);
+                        document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
+                        document.getElementById('edit_hour').value = dateObj.getHours() || 0;
+                        document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
+            
+                        const workItemsContainer = document.getElementById('editWorkItems');
+                        workItemsContainer.innerHTML = '';
+                        
+                        (data.work_assignment_works || []).forEach(work => {
+                            const workTemplate = document.getElementById('editWorkTemplate');
+                            if (workTemplate) {
+                                const workClone = workTemplate.content.cloneNode(true);
+                                const workInput = workClone.querySelector('.edit-work-id');
+                                const employeeSelect = workClone.querySelector('.edit-work-employee');
+                                const statusInput = workClone.querySelector('.edit-work-status');
+            
+                                workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
+                                workInput.value = work.work?.name || '';
+                                workInput.setAttribute('data-id', work.work_id || '');
+                                employeeSelect.value = work.executor_id || '';
+                                statusInput.value = work.status ? '1' : '0';
+            
+                                workItemsContainer.appendChild(workClone);
+                            }
+                        });
+            
+                        initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
+                        initEditWorkInputs();
+            
+                        const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
+                        editModal.show();
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Не удалось загрузить данные для редактирования: ' + error.message);
+                    });
+            };
+        
+            document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+        
+                let hasEmptyEmployee = false;
+                document.querySelectorAll('.edit-work-employee').forEach(select => {
+                    if (!select.value) {
+                        select.classList.add('is-invalid');
+                        hasEmptyEmployee = true;
+                    } else {
+                        select.classList.remove('is-invalid');
+                    }
+                });
+        
+                if (hasEmptyEmployee) {
+                    alert('Пожалуйста, укажите исполнителя для каждой работы');
+                    return;
+                }
+        
+                const form = e.target;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
+        
+                try {
+                    const formData = {
+                        id: document.getElementById('edit_assignment_id').value,
+                        date: document.getElementById('edit_date_picker').value + 'T' +
+                             String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
+                             String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
+                        car_id: document.getElementById('edit_car_id').value,
+                        car_number: document.getElementById('edit_car_number').value,
+                        vin: document.getElementById('edit_vin').value,
+                        color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
+                        person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
+                        description: document.getElementById('edit_description').value,
+                        works: []
+                    };
+        
+                    document.querySelectorAll('.edit-work-id').forEach((input, index) => {
+                        const workId = input.getAttribute('data-id');
+                        const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
+                        const statusInput = document.querySelectorAll('.edit-work-status')[index];
+        
+                        const employeeId = employeeSelect ? employeeSelect.value : null;
+                        const status = statusInput ? statusInput.value === '1' : false;
+        
+                        if (workId && workId !== '') {
+                            formData.works.push({
+                                work_id: parseInt(workId),
+                                executor_id: employeeId ? parseInt(employeeId) : null,
+                                status: status
+                            });
+                        }
+                    });
+        
+                    console.log('Отправляемые данные:', formData);
+        
+                    const response = await fetch('/update-assignment/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(formData)
+                    });
+        
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showAlert('Изменения успешно сохранены', 'success');
+                        setTimeout(() => {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
+                            modal.hide();
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        throw new Error(result.error || 'Ошибка при сохранении изменений');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert(error.message, 'danger');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Сохранить изменения';
+                }
+            });
+        
+            function showAlert(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.setAttribute('role', 'alert');
+                alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+                const container = document.querySelector('#editAssignmentModal .modal-body');
+                container.insertBefore(alertDiv, container.firstChild);
                 setTimeout(() => {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
-                    modal.hide();
-                    location.reload();
-                }, 1000);
-            } else {
-                throw new Error(result.error || 'Ошибка при сохранении изменений');
+                    alertDiv.classList.remove('show');
+                    setTimeout(() => alertDiv.remove(), 150);
+                }, 5000);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            showAlert(error.message, 'danger');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Сохранить изменения';
-        }
-    });
-
-    function showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.setAttribute('role', 'alert');
-        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-        const container = document.querySelector('#editAssignmentModal .modal-body');
-        container.insertBefore(alertDiv, container.firstChild);
-        setTimeout(() => {
-            alertDiv.classList.remove('show');
-            setTimeout(() => alertDiv.remove(), 150);
-        }, 5000);
-    }
-
-    document.getElementById('addEditWork').addEventListener('click', function() {
-        const workItemsContainer = document.getElementById('editWorkItems');
-        const workTemplate = document.getElementById('editWorkTemplate');
-        if (workTemplate) {
-            const workClone = workTemplate.content.cloneNode(true);
-            const workInput = workClone.querySelector('.edit-work-id');
-            workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
-            const listBox = document.createElement('div');
-            listBox.className = 'suggestions-box';
-            listBox.id = `editWorkList_${workInput.id}`;
-            workClone.querySelector('.d-flex').style.position = 'relative';
-            workClone.querySelector('.d-flex').insertBefore(listBox, workClone.querySelector('.edit-work-employee'));
-            workItemsContainer.appendChild(workClone);
-            initDatalistInputs([workInput]);
-            initWorkSearch(workInput, listBox);
-            document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
-        }
-    });
-
-    document.getElementById('editWorkItems').addEventListener('click', function(e) {
-        if (e.target.closest('.remove-work-btn')) {
-            const workGroup = e.target.closest('.work-input-group');
-            workGroup.remove();
-            if (document.querySelectorAll('#editWorkItems .work-input-group').length <= 1) {
-                document.querySelectorAll('#editWorkItems .remove-work-btn').forEach(btn => btn.style.display = 'none');
-            }
-        }
-    });
-});
+        
+            document.getElementById('addEditWork').addEventListener('click', function() {
+                const workItemsContainer = document.getElementById('editWorkItems');
+                const workTemplate = document.getElementById('editWorkTemplate');
+                if (workTemplate) {
+                    const workClone = workTemplate.content.cloneNode(true);
+                    const workInput = workClone.querySelector('.edit-work-id');
+                    workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
+                    const listBox = document.createElement('div');
+                    listBox.className = 'suggestions-box';
+                    listBox.id = `editWorkList_${workInput.id}`;
+                    workClone.querySelector('.d-flex').style.position = 'relative';
+                    workClone.querySelector('.d-flex').insertBefore(listBox, workClone.querySelector('.edit-work-employee'));
+                    workItemsContainer.appendChild(workClone);
+                    initDatalistInputs([workInput]);
+                    initWorkSearch(workInput, listBox);
+                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+                }
+            });
+        
+            document.getElementById('editWorkItems').addEventListener('click', function(e) {
+                if (e.target.closest('.remove-work-btn')) {
+                    const workGroup = e.target.closest('.work-input-group');
+                    workGroup.remove();
+                    if (document.querySelectorAll('#editWorkItems .work-input-group').length <= 1) {
+                        document.querySelectorAll('#editWorkItems .remove-work-btn').forEach(btn => btn.style.display = 'none');
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
