@@ -730,7 +730,7 @@
                             <div class="col-md-6">
                                 <label for="car_id" class="form-label">Машина</label>
                                 <div style="position: relative;">
-                                    <input type="text" id="carSearch" class="form-control" placeholder="Выберите машину">
+                                    <input type="text" autocomplete="off" id="carSearch" class="form-control" placeholder="Выберите машину">
                                     <div id="carList" class="suggestions-box"></div>
                                 </div>
                             </div>
@@ -840,7 +840,7 @@
                             <div class="col-md-6">
                                 <label for="edit_car_search" class="form-label">Машина</label>
                                 <div style="position: relative;">
-                                    <input type="text" id="edit_car_search" class="form-control" placeholder="Выберите машину">
+                                    <input type="text" autocomplete="off" id="edit_car_search" class="form-control" placeholder="Выберите машину">
                                     <div id="edit_car_list" class="suggestions-box"></div>
                                     <input type="hidden" id="edit_car_id" name="car_id">
                                 </div>
@@ -919,7 +919,7 @@
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
             <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
+                <input type="text" autocomplete="off" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
                 <div class="suggestions-box"></div>
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
@@ -1137,7 +1137,7 @@
                     newWorkItem.className = 'work-input-group mb-3';
                     newWorkItem.innerHTML = `
                         <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                            <input type="text" class="form-control" id="work_id_${workCount}"
+                            <input type="text"  autocomplete="off" class="form-control" id="work_id_${workCount}"
                                    name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                             <div class="suggestions-box" id="workList_work_id_${workCount}"></div>
                             <select class="form-select work-employee-select" name="work_employees[]">
@@ -1258,7 +1258,7 @@
                 workItems.innerHTML = `
                     <div class="work-input-group mb-3">
                         <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                            <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                            <input type="text" autocomplete="off" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                             <div class="suggestions-box" id="workList_work_id_0"></div>
                             <select class="form-select work-employee-select" name="work_employees[]">
                                 <option value="">Выберите сотрудника</option>
