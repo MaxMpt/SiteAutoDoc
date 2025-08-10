@@ -1268,6 +1268,14 @@
                         workInput.setAttribute('data-id', work.work_id || '');
                         employeeSelect.value = work.executor_id || '';
     
+                        // Добавляем скрытое поле для статуса работы
+                        const statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.className = 'edit-work-status';
+                        statusInput.name = 'work_statuses[]';
+                        statusInput.value = work.status ? '1' : '0';
+    
+                        workClone.querySelector('.d-flex').appendChild(statusInput);
                         workItemsContainer.appendChild(workClone);
                     }
                 });
@@ -1286,92 +1294,92 @@
     };
 
         document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            // Проверка исполнителей для работ
-            let hasEmptyEmployee = false;
-            document.querySelectorAll('.edit-work-employee').forEach(select => {
-                if (!select.value) {
-                    select.classList.add('is-invalid');
-                    hasEmptyEmployee = true;
-                } else {
-                    select.classList.remove('is-invalid');
-                }
-            });
-
-            if (hasEmptyEmployee) {
-                alert('Пожалуйста, укажите исполнителя для каждой работы');
-                return;
-            }
-
-            const form = e.target;
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-
-            try {
-                const formData = {
-                    id: document.getElementById('edit_assignment_id').value,
-                    date: document.getElementById('edit_date_picker').value + 'T' +
-                         String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
-                         String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
-                    car_id: document.getElementById('edit_car_id').getAttribute('data-id'),
-                    car_number: document.getElementById('edit_car_number').value,
-                    vin: document.getElementById('edit_vin').value,
-                    color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
-                    person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
-                    description: document.getElementById('edit_description').value,
-                    works: []
-                };
-
-                // Собираем данные о работах с их статусами
-                document.querySelectorAll('.edit-work-id').forEach((input, index) => {
-                    const workId = input.getAttribute('data-id');
-                    const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
-                    const statusInput = document.querySelectorAll('.edit-work-status')[index];
-
-                    const employeeId = employeeSelect ? employeeSelect.value : null;
-                    const status = statusInput ? statusInput.value === '1' : false;
-
-                    if (workId && workId !== '') {
-                        formData.works.push({
-                            work_id: parseInt(workId),
-                            executor_id: employeeId ? parseInt(employeeId) : null,
-                            status: status
-                        });
-                    }
-                });
-
-                console.log('Отправляемые данные:', formData);
-
-                const response = await fetch('/update-assignment/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-                if (response.ok && result.success) {
-                    showAlert('Изменения успешно сохранены', 'success');
-                    setTimeout(() => {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
-                        modal.hide();
-                        location.reload();
-                    }, 1000);
-                } else {
-                    throw new Error(result.error || 'Ошибка при сохранении изменений');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert(error.message, 'danger');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Сохранить изменения';
+        e.preventDefault();
+    
+        // Проверка исполнителей для работ
+        let hasEmptyEmployee = false;
+        document.querySelectorAll('.edit-work-employee').forEach(select => {
+            if (!select.value) {
+                select.classList.add('is-invalid');
+                hasEmptyEmployee = true;
+            } else {
+                select.classList.remove('is-invalid');
             }
         });
+    
+        if (hasEmptyEmployee) {
+            alert('Пожалуйста, укажите исполнителя для каждой работы');
+            return;
+        }
+    
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
+    
+        try {
+            const formData = {
+                id: document.getElementById('edit_assignment_id').value,
+                date: document.getElementById('edit_date_picker').value + 'T' +
+                     String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
+                     String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
+                car_id: document.getElementById('edit_car_id').getAttribute('data-id'),
+                car_number: document.getElementById('edit_car_number').value,
+                vin: document.getElementById('edit_vin').value,
+                color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
+                person_id: document.getElementById('edit_person_id').getAttribute('data-id'),
+                description: document.getElementById('edit_description').value,
+                works: []
+            };
+    
+            // Собираем данные о работах с их статусами
+            document.querySelectorAll('.edit-work-id').forEach((input, index) => {
+                const workId = input.getAttribute('data-id');
+                const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
+                const statusInput = document.querySelectorAll('.edit-work-status')[index];
+    
+                const employeeId = employeeSelect ? employeeSelect.value : null;
+                const status = statusInput ? statusInput.value === '1' : false;
+    
+                if (workId && workId !== '') {
+                    formData.works.push({
+                        work_id: parseInt(workId),
+                        executor_id: employeeId ? parseInt(employeeId) : null,
+                        status: status
+                    });
+                }
+            });
+    
+            console.log('Отправляемые данные:', formData);
+    
+            const response = await fetch('/update-assignment/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(formData)
+            });
+    
+            const result = await response.json();
+            if (response.ok && result.success) {
+                showAlert('Изменения успешно сохранены', 'success');
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editAssignmentModal'));
+                    modal.hide();
+                    location.reload();
+                }, 1000);
+            } else {
+                throw new Error(result.error || 'Ошибка при сохранении изменений');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert(error.message, 'danger');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Сохранить изменения';
+        }
+    });
 
         function showAlert(message, type) {
             const alertDiv = document.createElement('div');
