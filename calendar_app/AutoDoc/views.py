@@ -52,57 +52,127 @@ def get_cached_refs():
 
 
 
+# def calendar_view(request):
+#     try:
+#         current_date = datetime.now()
+#         year = int(request.GET.get('year', current_date.year))
+#         month = int(request.GET.get('month', current_date.month))
+
+#         assignments = get_api_data("work-assignments", {'year': year, 'month': month})
+#         logger.info(f"Assignments for {year}-{month}: {len(assignments)} records")
+
+#         cal = calendar.monthcalendar(year, month)
+#         days_with_assignments = {
+#             datetime.fromisoformat(a['date']).day
+#             for a in assignments if a.get('date')
+#         }
+
+#         calendar_data = []
+#         for week in cal:
+#             week_data = []
+#             for day in week:
+#                 if day == 0:
+#                     week_data.append({'day': 0})
+#                     continue
+#                 week_data.append({
+#                     'day': day,
+#                     'has_assignment': day in days_with_assignments,
+#                     'is_current': (day == current_date.day and month == current_date.month and year == current_date.year)
+#                 })
+#             calendar_data.append(week_data)
+
+#         prev_date = datetime(year, month, 1) - timedelta(days=1)
+#         next_date = datetime(year, month, 28) + timedelta(days=4)
+
+#         context = {
+#             'calendar_data': calendar_data,
+#             'month_name': calendar.month_name[month],
+#             'year': year,
+#             'month': month,
+#             'prev_year': prev_date.year,
+#             'prev_month': prev_date.month,
+#             'next_year': next_date.year,
+#             'next_month': next_date.month,
+#             'current_day': current_date.day,
+#             'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
+#             'years': list(range(year - 5, year + 6)),
+#         }
+#         return render(request, 'AutoDoc/calendar.html', context)
+
+#     except Exception as e:
+#         logger.error(f"Error in calendar_view: {e}")
+#         return JsonResponse({'error': str(e)}, status=500)
+
 def calendar_view(request):
+    # Получаем параметры месяца/года
+    year = int(request.GET.get("year", date.today().year))
+    month = int(request.GET.get("month", date.today().month))
+
+    # Загружаем данные из FastAPI
     try:
-        current_date = datetime.now()
-        year = int(request.GET.get('year', current_date.year))
-        month = int(request.GET.get('month', current_date.month))
+        api_url = get_api_data("work-assignments", {'year': year, 'month': month})
+        response = requests.get(api_url)
+        response.raise_for_status()
+        assignments = response.json()
+    except requests.RequestException as e:
+        return HttpResponseServerError(f"Ошибка API: {e}")
 
-        assignments = get_api_data("work-assignments", {'year': year, 'month': month})
-        logger.info(f"Assignments for {year}-{month}: {len(assignments)} records")
+    # Группируем по сотруднику
+    grouped_assignments = defaultdict(list)
+    for a in assignments:
+        grouped_assignments[a.get("person_name", "Не указан")].append(a)
 
-        cal = calendar.monthcalendar(year, month)
-        days_with_assignments = {
-            datetime.fromisoformat(a['date']).day
-            for a in assignments if a.get('date')
-        }
+    assignments_grouped = [
+        {"person_name": person, "assignments": works}
+        for person, works in grouped_assignments.items()
+    ]
 
-        calendar_data = []
-        for week in cal:
-            week_data = []
-            for day in week:
-                if day == 0:
-                    week_data.append({'day': 0})
-                    continue
+    # Создаём календарь месяца
+    cal = calendar.Calendar(firstweekday=0)
+    month_days = cal.monthdayscalendar(year, month)
+
+    calendar_data = []
+    today = date.today()
+
+    for week in month_days:
+        week_data = []
+        for day in week:
+            if day == 0:
+                week_data.append({"day": 0, "is_current": False, "has_assignment": False})
+            else:
+                is_current = (day == today.day and month == today.month and year == today.year)
+                has_assignment = any(
+                    date.fromisoformat(a["date"]).day == day
+                    for a in assignments
+                )
                 week_data.append({
-                    'day': day,
-                    'has_assignment': day in days_with_assignments,
-                    'is_current': (day == current_date.day and month == current_date.month and year == current_date.year)
+                    "day": day,
+                    "is_current": is_current,
+                    "has_assignment": has_assignment
                 })
-            calendar_data.append(week_data)
+        calendar_data.append(week_data)
 
-        prev_date = datetime(year, month, 1) - timedelta(days=1)
-        next_date = datetime(year, month, 28) + timedelta(days=4)
+    # Список месяцев
+    months = [(i, calendar.month_name[i].capitalize()) for i in range(1, 13)]
 
-        context = {
-            'calendar_data': calendar_data,
-            'month_name': calendar.month_name[month],
-            'year': year,
-            'month': month,
-            'prev_year': prev_date.year,
-            'prev_month': prev_date.month,
-            'next_year': next_date.year,
-            'next_month': next_date.month,
-            'current_day': current_date.day,
-            'months': [(i, calendar.month_name[i]) for i in range(1, 13)],
-            'years': list(range(year - 5, year + 6)),
-        }
-        return render(request, 'AutoDoc/calendar.html', context)
+    # Список годов
+    years = list(range(year - 2, year + 3))
 
-    except Exception as e:
-        logger.error(f"Error in calendar_view: {e}")
-        return JsonResponse({'error': str(e)}, status=500)
+    context = {
+        "year": year,
+        "month": month,
+        "month_name": calendar.month_name[month].capitalize(),
+        "calendar_data": calendar_data,
+        "assignments": assignments_grouped,
+        "months": months,
+        "years": years,
+        "prev_year": year if month > 1 else year - 1,
+        "prev_month": month - 1 if month > 1 else 12,
+        "next_year": year if month < 12 else year + 1,
+        "next_month": month + 1 if month < 12 else 1
+    }
 
+    return render(request, "AutoDoc/calendar.html", context)
 
 
 import locale
