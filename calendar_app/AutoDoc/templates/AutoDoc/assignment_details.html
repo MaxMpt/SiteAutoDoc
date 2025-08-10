@@ -792,22 +792,23 @@
                         </h6>
 
                        <div id="workItems">
-                            <div class="work-input-group mb-3">
-                                <div class="d-flex align-items-center gap-2 w-100">
-                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                                    <select class="form-select work-employee-select" name="work_employees[]" required>
-                                        <option value="">Выберите сотрудника</option>
-                                        {% for person in persons %}
-                                            <option value="{{ person.id }}">{{ person.full_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
-                                    <button type="button" class="btn btn-danger remove-work-btn">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
+                        <div class="work-input-group mb-3">
+                            <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                                <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                <div class="suggestions-box" id="workList_work_id_0"></div>
+                                <select class="form-select work-employee-select" name="work_employees[]" required>
+                                    <option value="">Выберите сотрудника</option>
+                                    {% for person in persons %}
+                                        <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
+                                <button type="button" class="btn btn-danger remove-work-btn">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                       </div>
+                        </div>
+                    </div>
 
                         <datalist id="workOptions">
                             {% for work in works %}
@@ -922,8 +923,9 @@
     <!-- Шаблон для динамического добавления работ -->
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
-            <div class="d-flex align-items-center gap-2 w-100">
+            <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
                 <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
+                <div class="suggestions-box"></div>
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
                     {% for person in persons %}
@@ -934,6 +936,7 @@
                 <button type="button" class="btn btn-danger remove-work-btn">
                     <i class="fas fa-times"></i>
                 </button>
+                <input type="hidden" class="edit-work-status" name="work_statuses[]" value="0">
             </div>
         </div>
     </template>
@@ -941,152 +944,229 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-    
-    const cars = [
-        {% for car in cars %}
-            { id: "{{ car.id }}", name: "{{ car.name }}" },
-        {% endfor %}
-    ];
+        const cars = [
+    {% for car in cars %}
+        { id: "{{ car.id }}", name: "{{ car.name }}" },
+    {% endfor %}
+];
 
-    const input = document.getElementById('carSearch');
-    const listBox = document.getElementById('carList');
+const works = [
+    {% for work in works %}
+        { id: "{{ work.id }}", name: "{{ work.name }}" },
+    {% endfor %}
+];
 
-    input.addEventListener('input', function() {
-        const value = this.value.toLowerCase();
-        listBox.innerHTML = '';
-        const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
+document.addEventListener('DOMContentLoaded', function() {
+    let workCount = 1;
+    const addWorkButton = document.getElementById('addWork');
+    const workItems = document.getElementById('workItems');
+    const createForm = document.getElementById('createAssignmentForm');
 
-        filtered.slice(0, 50).forEach(car => { // ограничим до 50 найденных
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.textContent = car.name;
-            item.dataset.id = car.id;
-            item.addEventListener('click', () => {
-                input.value = car.name;
-                listBox.style.display = 'none';
-                // Тут можно записать car.id в скрытое поле, если нужно
-            });
-            listBox.appendChild(item);
-        });
+    // Initialize car search dropdown
+    function initCarSearch(input, listBox) {
+        input.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            listBox.innerHTML = '';
+            const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
 
-        listBox.style.display = filtered.length ? 'block' : 'none';
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!listBox.contains(e.target) && e.target !== input) {
-            listBox.style.display = 'none';
-        }
-    });
-        
-    document.addEventListener('DOMContentLoaded', function() {
-        let workCount = 1;
-        const addWorkButton = document.getElementById('addWork');
-        const workItems = document.getElementById('workItems');
-        const createForm = document.getElementById('createAssignmentForm');
-
-        window.deleteAssignment = function(assignmentId) {
-            if (confirm('Вы уверены, что хотите удалить эту запись?')) {
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                
-                fetch(`/delete-assignment/${assignmentId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken,
-                    },
-                    credentials: 'include'
-                })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Запись успешно удалена');
-                        location.reload();
-                    } else {
-                        return response.json().then(err => {
-                            throw new Error(err.error || 'Ошибка сервера');
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Ошибка:', error);
-                    alert(`Не удалось удалить запись: ${error.message}`);
+            filtered.slice(0, 50).forEach(car => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = car.name;
+                item.dataset.id = car.id;
+                item.addEventListener('click', () => {
+                    input.value = car.name;
+                    input.dataset.id = car.id;
+                    listBox.style.display = 'none';
                 });
-            }
-        };
-
-        function updateDataId(input) {
-            const datalistId = input.getAttribute('list');
-            if (!datalistId) return;
-
-            const datalist = document.getElementById(datalistId);
-            if (!datalist) return;
-
-            const options = datalist.querySelectorAll('option');
-            for (let option of options) {
-                if (option.value === input.value) {
-                    input.setAttribute('data-id', option.getAttribute('data-id') || '');
-                    return;
-                }
-            }
-            input.setAttribute('data-id', '');
-        }
-
-        function initDatalistInputs(inputs) {
-            inputs.forEach(input => {
-                input.addEventListener('input', () => updateDataId(input));
-                input.addEventListener('change', () => updateDataId(input));
-                if (input.value) updateDataId(input);
+                listBox.appendChild(item);
             });
-        }
 
-        initDatalistInputs(document.querySelectorAll('input[list]'));
-
-        addWorkButton.addEventListener('click', function() {
-            if (workCount < 100) {
-                const newWorkItem = document.createElement('div');
-                newWorkItem.className = 'work-input-group mb-3';
-                newWorkItem.innerHTML = `
-                    <div class="d-flex align-items-center gap-2 w-100">
-                        <input type="text" class="form-control" id="work_id_${workCount}"
-                               name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                        <select class="form-select work-employee-select" name="work_employees[]">
-                            <option value="">Выберите сотрудника</option>
-                            {% for person in persons %}
-                                <option value="{{ person.id }}">{{ person.full_name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="button" class="btn btn-danger remove-work-btn">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `;
-                workItems.appendChild(newWorkItem);
-                workCount++;
-
-                document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
-                initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
-            } else {
-                alert('Максимум 100 работ.');
-            }
+            listBox.style.display = filtered.length ? 'block' : 'none';
         });
 
-        workItems.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-work-btn')) {
-                const workGroup = e.target.closest('.work-input-group');
-                workGroup.remove();
-                workCount--;
+        document.addEventListener('click', function(e) {
+            if (!listBox.contains(e.target) && e.target !== input) {
+                listBox.style.display = 'none';
+            }
+        });
+    }
 
-                if (document.querySelectorAll('.work-input-group').length <= 1) {
-                    document.querySelectorAll('.remove-work-btn').forEach(btn => {
-                        btn.style.display = 'none';
+    // Initialize work search dropdown
+    function initWorkSearch(input, listBox) {
+        input.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            listBox.innerHTML = '';
+            const filtered = works.filter(work => work.name.toLowerCase().includes(value));
+
+            filtered.slice(0, 50).forEach(work => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.textContent = work.name;
+                item.dataset.id = work.id;
+                item.addEventListener('click', () => {
+                    input.value = work.name;
+                    input.dataset.id = work.id;
+                    listBox.style.display = 'none';
+                    updateDataId(input);
+                });
+                listBox.appendChild(item);
+            });
+
+            listBox.style.display = filtered.length ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!listBox.contains(e.target) && e.target !== input) {
+                listBox.style.display = 'none';
+            }
+        });
+    }
+
+    // Initialize car search for create modal
+    const carInput = document.getElementById('carSearch');
+    const carListBox = document.getElementById('carList');
+    if (carInput && carListBox) {
+        initCarSearch(carInput, carListBox);
+    }
+
+    // Initialize car search for edit modal
+    const editCarInput = document.getElementById('edit_car_search');
+    const editCarListBox = document.getElementById('edit_car_list');
+    if (editCarInput && editCarListBox) {
+        initCarSearch(editCarInput, editCarListBox);
+    }
+
+    // Initialize work search for create modal
+    function initWorkInputs() {
+        document.querySelectorAll('#workItems input[list="workOptions"]').forEach(input => {
+            const listBox = document.createElement('div');
+            listBox.className = 'suggestions-box';
+            listBox.id = `workList_${input.id}`;
+            input.parentElement.style.position = 'relative';
+            input.parentElement.appendChild(listBox);
+            initWorkSearch(input, listBox);
+        });
+    }
+
+    // Initialize work search for edit modal
+    function initEditWorkInputs() {
+        document.querySelectorAll('#editWorkItems input[list="workOptions"]').forEach(input => {
+            const listBox = document.createElement('div');
+            listBox.className = 'suggestions-box';
+            listBox.id = `editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`;
+            input.parentElement.style.position = 'relative';
+            input.parentElement.appendChild(listBox);
+            initWorkSearch(input, listBox);
+        });
+    }
+
+    initWorkInputs();
+
+    window.deleteAssignment = function(assignmentId) {
+        if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            fetch(`/delete-assignment/${assignmentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                credentials: 'include'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Запись успешно удалена');
+                    location.reload();
+                } else {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Ошибка сервера');
                     });
                 }
-            }
-        });
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert(`Не удалось удалить запись: ${error.message}`);
+            });
+        }
+    };
 
-        createForm.addEventListener('submit', async function(e) {
+    function updateDataId(input) {
+        const datalistId = input.getAttribute('list');
+        if (!datalistId) return;
+
+        const datalist = document.getElementById(datalistId);
+        if (!datalist) return;
+
+        const options = datalist.querySelectorAll('option');
+        for (let option of options) {
+            if (option.value === input.value) {
+                input.setAttribute('data-id', option.getAttribute('data-id') || '');
+                return;
+            }
+        }
+        input.setAttribute('data-id', '');
+    }
+
+    function initDatalistInputs(inputs) {
+        inputs.forEach(input => {
+            input.addEventListener('input', () => updateDataId(input));
+            input.addEventListener('change', () => updateDataId(input));
+            if (input.value) updateDataId(input);
+        });
+    }
+
+    initDatalistInputs(document.querySelectorAll('input[list]'));
+
+    addWorkButton.addEventListener('click', function() {
+        if (workCount < 100) {
+            const newWorkItem = document.createElement('div');
+            newWorkItem.className = 'work-input-group mb-3';
+            newWorkItem.innerHTML = `
+                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                    <input type="text" class="form-control" id="work_id_${workCount}"
+                           name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                    <div class="suggestions-box" id="workList_work_id_${workCount}"></div>
+                    <select class="form-select work-employee-select" name="work_employees[]">
+                        <option value="">Выберите сотрудника</option>
+                        {% for person in persons %}
+                            <option value="{{ person.id }}">{{ person.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-danger remove-work-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            workItems.appendChild(newWorkItem);
+            initWorkSearch(document.getElementById(`work_id_${workCount}`), document.getElementById(`workList_work_id_${workCount}`));
+            workCount++;
+
+            document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+            initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
+        } else {
+            alert('Максимум 100 работ.');
+        }
+    });
+
+    workItems.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-work-btn')) {
+            const workGroup = e.target.closest('.work-input-group');
+            workGroup.remove();
+            workCount--;
+
+            if (document.querySelectorAll('.work-input-group').length <= 1) {
+                document.querySelectorAll('.remove-work-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+    });
+
+    createForm.addEventListener('submit', async function(e) {
         e.preventDefault();
     
-        // Проверка исполнителей для работ
         let hasEmptyEmployee = false;
         document.querySelectorAll('.work-employee-select').forEach(select => {
             if (!select.value) {
@@ -1102,7 +1182,6 @@
             return;
         }
     
-        // Находим выбранную машину из списка suggestions
         let carId = null;
         const carName = document.getElementById('carSearch').value;
         const selectedCar = cars.find(car => car.name === carName);
@@ -1112,7 +1191,7 @@
     
         const formData = {
             vin: document.getElementById('vin').value,
-            car_id: carId, // Используем найденный ID машины
+            car_id: carId,
             car_number: document.getElementById('car_number').value,
             color_id: document.getElementById('color_id').getAttribute('data-id'),
             person_id: document.getElementById('person_id').getAttribute('data-id'),
@@ -1162,173 +1241,136 @@
         }
     });
 
-        document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
-            createForm.reset();
-            workItems.innerHTML = `
-                <div class="work-input-group mb-3">
-                    <div class="d-flex align-items-center gap-2 w-100">
-                        <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                        <select class="form-select work-employee-select" name="work_employees[]">
-                            <option value="">Выберите сотрудника</option>
-                            {% for person in persons %}
-                                <option value="{{ person.id }}">{{ person.full_name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="button" class="btn btn-danger remove-work-btn">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+    document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
+        createForm.reset();
+        workItems.innerHTML = `
+            <div class="work-input-group mb-3">
+                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                    <div class="suggestions-box" id="workList_work_id_0"></div>
+                    <select class="form-select work-employee-select" name="work_employees[]">
+                        <option value="">Выберите сотрудника</option>
+                        {% for person in persons %}
+                            <option value="{{ person.id }}">{{ person.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-danger remove-work-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-            `;
-            workCount = 1;
-            document.querySelectorAll('input[list]').forEach(input => {
-                input.removeAttribute('data-id');
-            });
-            initDatalistInputs(document.querySelectorAll('input[list]'));
+            </div>
+        `;
+        workCount = 1;
+        document.querySelectorAll('input[list]').forEach(input => {
+            input.removeAttribute('data-id');
         });
+        initDatalistInputs(document.querySelectorAll('input[list]'));
+        initWorkInputs();
+    });
 
-        window.saveWorkStatus = function(assignmentId) {
-            const form = document.getElementById(`workStatusForm_${assignmentId}`);
-            const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
-                .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
+    window.saveWorkStatus = function(assignmentId) {
+        const form = document.getElementById(`workStatusForm_${assignmentId}`);
+        const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
+            .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
 
-            fetch(`/update-work-status/${assignmentId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({ updates })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Статусы сохранены успешно');
-                    location.reload();
-                } else {
-                    alert('Ошибка при сохранении статусов');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при сохранении');
-            });
-        };
-
-        window.openEditModal = function(assignmentId) {
-    fetch(`/get-assignment/${assignmentId}/`)
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка загрузки данных');
-            return response.json();
+        fetch(`/update-work-status/${assignmentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({ updates })
         })
+        .then(response => response.json())
         .then(data => {
-            console.log('Полученные данные:', data);
-
-            // Заполняем поля формы
-            document.getElementById('edit_assignment_id').value = data.id || '';
-            document.getElementById('edit_date').value = data.date || '';
-            
-            // Устанавливаем значения для поля машины
-            const editCarSearch = document.getElementById('edit_car_search');
-            const editCarId = document.getElementById('edit_car_id');
-            
-            editCarSearch.value = data.car?.name || '';
-            editCarId.value = data.car?.id || '';
-            
-            // Инициализация выпадающего списка для машин
-            const editCarList = document.getElementById('edit_car_list');
-            
-            editCarSearch.addEventListener('input', function() {
-                const value = this.value.toLowerCase();
-                editCarList.innerHTML = '';
-                const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
-
-                filtered.slice(0, 50).forEach(car => {
-                    const item = document.createElement('div');
-                    item.className = 'suggestion-item';
-                    item.textContent = car.name;
-                    item.dataset.id = car.id;
-                    item.addEventListener('click', () => {
-                        editCarSearch.value = car.name;
-                        editCarId.value = car.id;
-                        editCarList.style.display = 'none';
-                    });
-                    editCarList.appendChild(item);
-                });
-
-                editCarList.style.display = filtered.length ? 'block' : 'none';
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!editCarList.contains(e.target) && e.target !== editCarSearch) {
-                    editCarList.style.display = 'none';
-                }
-            });
-            
-            // Остальные поля формы
-            document.getElementById('edit_car_number').value = data.car_number || '';
-            document.getElementById('edit_vin').value = data.vin || '';
-            
-            const editColorId = document.getElementById('edit_color_id');
-            editColorId.value = data.color?.name || '';
-            editColorId.setAttribute('data-id', data.color?.id || '');
-            
-            const editPersonId = document.getElementById('edit_person_id');
-            editPersonId.value = data.person?.full_name || '';
-            editPersonId.setAttribute('data-id', data.person?.id || '');
-            
-            document.getElementById('edit_description').value = data.description || '';
-
-            // Устанавливаем дату и время
-            const dateObj = new Date(data.date);
-            document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
-            document.getElementById('edit_hour').value = dateObj.getHours() || 0;
-            document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-
-            // Заполняем работы
-            const workItemsContainer = document.getElementById('editWorkItems');
-            workItemsContainer.innerHTML = '';
-            
-            (data.work_assignment_works || []).forEach(work => {
-                const workTemplate = document.getElementById('editWorkTemplate');
-                if (workTemplate) {
-                    const workClone = workTemplate.content.cloneNode(true);
-                    const workInput = workClone.querySelector('.edit-work-id');
-                    const employeeSelect = workClone.querySelector('.edit-work-employee');
-
-                    workInput.value = work.work?.name || '';
-                    workInput.setAttribute('data-id', work.work_id || '');
-                    employeeSelect.value = work.executor_id || '';
-
-                    // Добавляем скрытое поле для статуса работы
-                    const statusInput = document.createElement('input');
-                    statusInput.type = 'hidden';
-                    statusInput.className = 'edit-work-status';
-                    statusInput.name = 'work_statuses[]';
-                    statusInput.value = work.status ? '1' : '0';
-
-                    workClone.querySelector('.d-flex').appendChild(statusInput);
-                    workItemsContainer.appendChild(workClone);
-                }
-            });
-
-            // Инициализируем datalist для новых полей
-            initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
-
-            // Показываем модальное окно
-            const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
-            editModal.show();
+            if (data.success) {
+                alert('Статусы сохранены успешно');
+                location.reload();
+            } else {
+                alert('Ошибка при сохранении статусов');
+            }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Не удалось загрузить данные для редактирования: ' + error.message);
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при сохранении');
         });
-};
+    };
 
-        document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    window.openEditModal = function(assignmentId) {
+        fetch(`/get-assignment/${assignmentId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки данных');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Полученные данные:', data);
     
-        // Проверка исполнителей для работ
+                document.getElementById('edit_assignment_id').value = data.id || '';
+                document.getElementById('edit_date').value = data.date || '';
+                
+                const editCarSearch = document.getElementById('edit_car_search');
+                const editCarId = document.getElementById('edit_car_id');
+                editCarSearch.value = data.car?.name || '';
+                editCarId.value = data.car?.id || '';
+                
+                document.getElementById('edit_car_number').value = data.car_number || '';
+                document.getElementById('edit_vin').value = data.vin || '';
+                
+                const editColorId = document.getElementById('edit_color_id');
+                editColorId.value = data.color?.name || '';
+                editColorId.setAttribute('data-id', data.color?.id || '');
+                
+                const editPersonId = document.getElementById('edit_person_id');
+                editPersonId.value = data.person?.full_name || '';
+                editPersonId.setAttribute('data-id', data.person?.id || '');
+                
+                document.getElementById('edit_description').value = data.description || '';
+    
+                const dateObj = new Date(data.date);
+                document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
+                document.getElementById('edit_hour').value = dateObj.getHours() || 0;
+                document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
+    
+                const workItemsContainer = document.getElementById('editWorkItems');
+                workItemsContainer.innerHTML = '';
+                
+                (data.work_assignment_works || []).forEach(work => {
+                    const workTemplate = document.getElementById('editWorkTemplate');
+                    if (workTemplate) {
+                        const workClone = workTemplate.content.cloneNode(true);
+                        const workInput = workClone.querySelector('.edit-work-id');
+                        const employeeSelect = workClone.querySelector('.edit-work-employee');
+    
+                        workInput.value = work.work?.name || '';
+                        workInput.setAttribute('data-id', work.work_id || '');
+                        employeeSelect.value = work.executor_id || '';
+    
+                        const statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.className = 'edit-work-status';
+                        statusInput.name = 'work_statuses[]';
+                        statusInput.value = work.status ? '1' : '0';
+    
+                        workClone.querySelector('.d-flex').appendChild(statusInput);
+                        workItemsContainer.appendChild(workClone);
+                    }
+                });
+    
+                initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
+                initEditWorkInputs();
+    
+                const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
+                editModal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Не удалось загрузить данные для редактирования: ' + error.message);
+            });
+    };
+
+    document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
         let hasEmptyEmployee = false;
         document.querySelectorAll('.edit-work-employee').forEach(select => {
             if (!select.value) {
@@ -1338,17 +1380,17 @@
                 select.classList.remove('is-invalid');
             }
         });
-    
+
         if (hasEmptyEmployee) {
             alert('Пожалуйста, укажите исполнителя для каждой работы');
             return;
         }
-    
+
         const form = e.target;
         const submitBtn = form.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-    
+
         try {
             const formData = {
                 id: document.getElementById('edit_assignment_id').value,
@@ -1363,16 +1405,15 @@
                 description: document.getElementById('edit_description').value,
                 works: []
             };
-    
-            // Собираем данные о работах с их статусами
+
             document.querySelectorAll('.edit-work-id').forEach((input, index) => {
                 const workId = input.getAttribute('data-id');
                 const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
                 const statusInput = document.querySelectorAll('.edit-work-status')[index];
-    
+
                 const employeeId = employeeSelect ? employeeSelect.value : null;
                 const status = statusInput ? statusInput.value === '1' : false;
-    
+
                 if (workId && workId !== '') {
                     formData.works.push({
                         work_id: parseInt(workId),
@@ -1381,9 +1422,9 @@
                     });
                 }
             });
-    
+
             console.log('Отправляемые данные:', formData);
-    
+
             const response = await fetch('/update-assignment/', {
                 method: 'POST',
                 headers: {
@@ -1392,7 +1433,7 @@
                 },
                 body: JSON.stringify(formData)
             });
-    
+
             const result = await response.json();
             if (response.ok && result.success) {
                 showAlert('Изменения успешно сохранены', 'success');
@@ -1413,41 +1454,48 @@
         }
     });
 
-        function showAlert(message, type) {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.setAttribute('role', 'alert');
-            alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
-            const container = document.querySelector('#editAssignmentModal .modal-body');
-            container.insertBefore(alertDiv, container.firstChild);
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-                setTimeout(() => alertDiv.remove(), 150);
-            }, 5000);
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        const container = document.querySelector('#editAssignmentModal .modal-body');
+        container.insertBefore(alertDiv, container.firstChild);
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 5000);
+    }
+
+    document.getElementById('addEditWork').addEventListener('click', function() {
+        const workItemsContainer = document.getElementById('editWorkItems');
+        const workTemplate = document.getElementById('editWorkTemplate');
+        if (workTemplate) {
+            const workClone = workTemplate.content.cloneNode(true);
+            const workInput = workClone.querySelector('.edit-work-id');
+            workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
+            const listBox = document.createElement('div');
+            listBox.className = 'suggestions-box';
+            listBox.id = `editWorkList_${workInput.id}`;
+            workClone.querySelector('.d-flex').style.position = 'relative';
+            workClone.querySelector('.d-flex').insertBefore(listBox, workClone.querySelector('.edit-work-employee'));
+            workItemsContainer.appendChild(workClone);
+            initDatalistInputs([workInput]);
+            initWorkSearch(workInput, listBox);
+            document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
         }
-
-        document.getElementById('addEditWork').addEventListener('click', function() {
-            const workItemsContainer = document.getElementById('editWorkItems');
-            const workTemplate = document.getElementById('editWorkTemplate');
-            if (workTemplate) {
-                const workClone = workTemplate.content.cloneNode(true);
-                const workInput = workClone.querySelector('.edit-work-id');
-                initDatalistInputs([workInput]); // Инициализация datalist для нового поля
-                workItemsContainer.appendChild(workClone);
-                document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
-            }
-        });
-
-        document.getElementById('editWorkItems').addEventListener('click', function(e) {
-            if (e.target.closest('.remove-work-btn')) {
-                const workGroup = e.target.closest('.work-input-group');
-                workGroup.remove();
-                if (document.querySelectorAll('.work-input-group').length <= 1) {
-                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'none');
-                }
-            }
-        });
     });
+
+    document.getElementById('editWorkItems').addEventListener('click', function(e) {
+        if (e.target.closest('.remove-work-btn')) {
+            const workGroup = e.target.closest('.work-input-group');
+            workGroup.remove();
+            if (document.querySelectorAll('#editWorkItems .work-input-group').length <= 1) {
+                document.querySelectorAll('#editWorkItems .remove-work-btn').forEach(btn => btn.style.display = 'none');
+            }
+        }
+    });
+});
     </script>
 </body>
 </html>
