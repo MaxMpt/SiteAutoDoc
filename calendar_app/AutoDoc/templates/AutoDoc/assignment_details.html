@@ -788,7 +788,7 @@
                         <div id="workItems">
                             <div class="work-input-group mb-3">
                                 <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                    <input type="text" autocomplete="off" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                                     <div class="suggestions-box" id="workList_work_id_0"></div>
                                     <select class="form-select work-employee-select" name="work_employees[]" required>
                                         <option value="">Выберите сотрудника</option>
@@ -809,7 +809,8 @@
                                 <option value="{{ work.name }}" data-id="{{ work.id }}"></option>
                             {% endfor %}
                         </datalist> -->
-
+                        </br>
+                        </br>
                         <button type="button" class="btn btn-primary mb-4" id="addWork">
                             <i class="fas fa-plus me-2"></i>Добавить работу
                         </button>
@@ -901,6 +902,9 @@
                             <!-- Работы будут добавляться динамически -->
                         </div>
 
+                        
+                        </br>
+                        </br>
                         <button type="button" class="btn btn-primary mb-3" id="addEditWork">
                             <i class="fas fa-plus me-2"></i>Добавить работу
                         </button>
