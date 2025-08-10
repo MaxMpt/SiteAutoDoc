@@ -1086,75 +1086,83 @@
         });
 
         createForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            // Проверка исполнителей для работ
-            let hasEmptyEmployee = false;
-            document.querySelectorAll('.work-employee-select').forEach(select => {
-                if (!select.value) {
-                    select.classList.add('is-invalid');
-                    hasEmptyEmployee = true;
-                } else {
-                    select.classList.remove('is-invalid');
-                }
-            });
-
-            if (hasEmptyEmployee) {
-                alert('Пожалуйста, укажите исполнителя для каждой работы');
-                return;
-            }
-
-            const formData = {
-                vin: document.getElementById('vin').value,
-                car_id: document.getElementById('car_id').getAttribute('data-id') || null,
-                car_number: document.getElementById('car_number').value,
-                color_id: document.getElementById('color_id').getAttribute('data-id'),
-                person_id: document.getElementById('person_id').getAttribute('data-id'),
-                description: document.getElementById('description').value,
-                hour: document.getElementById('hour').value,
-                minute: document.getElementById('minute').value,
-                works: []
-            };
-
-            if (!formData.color_id || !formData.person_id) {
-                alert('Пожалуйста, выберите цвет и сотрудника из списка');
-                return;
-            }
-
-            document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
-                const workId = input.getAttribute('data-id');
-                const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
-                if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
-            });
-
-            if (formData.works.length === 0) {
-                alert('Пожалуйста, добавьте хотя бы одну работу');
-                return;
-            }
-
-            try {
-                const response = await fetch(createForm.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
-                    modal.hide();
-                    window.location.href = result.redirect_url || window.location.href;
-                } else {
-                    alert(result.error || 'Произошла ошибка при создании записи');
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
+        e.preventDefault();
+    
+        // Проверка исполнителей для работ
+        let hasEmptyEmployee = false;
+        document.querySelectorAll('.work-employee-select').forEach(select => {
+            if (!select.value) {
+                select.classList.add('is-invalid');
+                hasEmptyEmployee = true;
+            } else {
+                select.classList.remove('is-invalid');
             }
         });
+    
+        if (hasEmptyEmployee) {
+            alert('Пожалуйста, укажите исполнителя для каждой работы');
+            return;
+        }
+    
+        // Находим выбранную машину из списка suggestions
+        let carId = null;
+        const carName = document.getElementById('carSearch').value;
+        const selectedCar = cars.find(car => car.name === carName);
+        if (selectedCar) {
+            carId = selectedCar.id;
+        }
+    
+        const formData = {
+            vin: document.getElementById('vin').value,
+            car_id: carId, // Используем найденный ID машины
+            car_number: document.getElementById('car_number').value,
+            color_id: document.getElementById('color_id').getAttribute('data-id'),
+            person_id: document.getElementById('person_id').getAttribute('data-id'),
+            description: document.getElementById('description').value,
+            hour: document.getElementById('hour').value,
+            minute: document.getElementById('minute').value,
+            works: []
+        };
+    
+        if (!formData.color_id || !formData.person_id) {
+            alert('Пожалуйста, выберите цвет и сотрудника из списка');
+            return;
+        }
+    
+        document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
+            const workId = input.getAttribute('data-id');
+            const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
+            if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
+        });
+    
+        if (formData.works.length === 0) {
+            alert('Пожалуйста, добавьте хотя бы одну работу');
+            return;
+        }
+    
+        try {
+            const response = await fetch(createForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(formData)
+            });
+    
+            const result = await response.json();
+            if (result.success) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
+                modal.hide();
+                window.location.href = result.redirect_url || window.location.href;
+            } else {
+                alert(result.error || 'Произошла ошибка при создании записи');
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
+        }
+    });
 
         document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
             createForm.reset();
