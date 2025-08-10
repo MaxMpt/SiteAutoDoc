@@ -46,8 +46,7 @@ def get_cached_refs():
         'colors': get_api_data("colors"),
         'works': get_api_data("works"),
         'persons': get_api_data("persons"),
-        'roles': get_api_data("roles"),
-        'persons_status_true': get_api_data("persons-status")
+        'roles': get_api_data("roles")
     }
 
 
