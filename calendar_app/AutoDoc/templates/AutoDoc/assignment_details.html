@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -789,7 +788,7 @@
                         <div id="workItems">
                             <div class="work-input-group mb-3">
                                 <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу" autocomplete="off">
+                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                                     <div class="suggestions-box" id="workList_work_id_0"></div>
                                     <select class="form-select work-employee-select" name="work_employees[]" required>
                                         <option value="">Выберите сотрудника</option>
@@ -920,7 +919,7 @@
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
             <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу" autocomplete="off">
+                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
                 <div class="suggestions-box"></div>
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
@@ -992,47 +991,44 @@
 
             // Initialize work search dropdown
             function initWorkSearch(input, listBox) {
-                console.log('initWorkSearch called for input:', input.id); // Отладка
+                // Remove existing event listeners to prevent duplicates
                 const newInput = input.cloneNode(true);
                 input.parentNode.replaceChild(newInput, input);
                 input = newInput;
 
+                // Remove any existing suggestion box to prevent duplicates
                 const existingListBox = input.parentElement.querySelector('.suggestions-box');
                 if (existingListBox && existingListBox !== listBox) {
                     existingListBox.remove();
                 }
 
-                if (input.dataset.initialized !== 'true') {
-                    input.addEventListener('input', function() {
-                        const value = this.value.toLowerCase();
-                        listBox.innerHTML = '';
-                        const filtered = works.filter(work => work.name.toLowerCase().includes(value));
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    listBox.innerHTML = '';
+                    const filtered = works.filter(work => work.name.toLowerCase().includes(value));
 
-                        filtered.slice(0, 50).forEach(work => {
-                            const item = document.createElement('div');
-                            item.className = 'suggestion-item';
-                            item.textContent = work.name;
-                            item.dataset.id = work.id;
-                            item.addEventListener('click', () => {
-                                input.value = work.name;
-                                input.dataset.id = work.id;
-                                listBox.style.display = 'none';
-                                updateDataId(input);
-                            });
-                            listBox.appendChild(item);
+                    filtered.slice(0, 50).forEach(work => {
+                        const item = document.createElement('div');
+                        item.className = 'suggestion-item';
+                        item.textContent = work.name;
+                        item.dataset.id = work.id;
+                        item.addEventListener('click', () => {
+                            input.value = work.name;
+                            input.dataset.id = work.id;
+                            listBox.style.display = 'none';
+                            updateDataId(input);
                         });
-
-                        listBox.style.display = filtered.length ? 'block' : 'none';
+                        listBox.appendChild(item);
                     });
 
-                    input.dataset.initialized = 'true';
-                }
+                    listBox.style.display = filtered.length ? 'block' : 'none';
+                });
 
                 document.addEventListener('click', function(e) {
                     if (!listBox.contains(e.target) && e.target !== input) {
                         listBox.style.display = 'none';
                     }
-                }, { once: true });
+                });
             }
 
             // Initialize car search for create modal
@@ -1142,7 +1138,7 @@
                     newWorkItem.innerHTML = `
                         <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
                             <input type="text" class="form-control" id="work_id_${workCount}"
-                                   name="work_ids[]" list="workOptions" placeholder="Выберите работу" autocomplete="off">
+                                   name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                             <div class="suggestions-box" id="workList_work_id_${workCount}"></div>
                             <select class="form-select work-employee-select" name="work_employees[]">
                                 <option value="">Выберите сотрудника</option>
@@ -1262,7 +1258,7 @@
                 workItems.innerHTML = `
                     <div class="work-input-group mb-3">
                         <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                            <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу" autocomplete="off">
+                            <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                             <div class="suggestions-box" id="workList_work_id_0"></div>
                             <select class="form-select work-employee-select" name="work_employees[]">
                                 <option value="">Выберите сотрудника</option>
