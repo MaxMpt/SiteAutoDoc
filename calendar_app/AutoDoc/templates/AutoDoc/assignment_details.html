@@ -497,18 +497,22 @@
 
 
 /*         выподающий список с ограничением по кол-во записей */
-        .custom-dropdown {
+       .custom-dropdown {
             max-height: 150px; /* Фиксированная высота */
             overflow-y: auto;  /* Скролл при необходимости */
             border: 1px solid #ccc;
             background: white;
             position: absolute;
-            width: 100%;
+            width: calc(100% - 2px); /* Ширина как у input (минус border) */
             z-index: 1000;
+            margin-top: 2px;
         }
         .dropdown-item {
             padding: 8px;
             cursor: pointer;
+            white-space: nowrap; /* Текст не переносится */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Обрезаем длинный текст */
         }
         .dropdown-item:hover {
             background: #f0f0f0;
@@ -735,9 +739,7 @@
                                 <label for="car_id" class="form-label">Машина</label>
                                 <input type="text" class="form-control" id="car_id" name="car_id" placeholder="Выберите машину" autocomplete="off">
                                 <div class="custom-dropdown" id="carDropdown" style="display: none;">
-                                    {% for car in cars %}
-                                        <div class="dropdown-item" data-value="{{ car.name }}" data-id="{{ car.id }}">{{ car.name }}</div>
-                                    {% endfor %}
+                                    <!-- Список будет заполняться динамически -->
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -846,9 +848,7 @@
                                 <label for="edit_car_id" class="form-label">Машина</label>
                                 <input type="text" class="form-control" id="car_id" name="car_id" placeholder="Выберите машину" autocomplete="off">
                                 <div class="custom-dropdown" id="carDropdown" style="display: none;">
-                                    {% for car in cars %}
-                                        <div class="dropdown-item" data-value="{{ car.name }}" data-id="{{ car.id }}">{{ car.name }}</div>
-                                    {% endfor %}
+                                    <!-- Список будет заполняться динамически -->
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -946,20 +946,53 @@
     const input = document.getElementById('car_id');
     const dropdown = document.getElementById('carDropdown');
     
+    // Данные из шаблона (замените на ваши)
+    const cars = [
+        {% for car in cars %}
+            { id: "{{ car.id }}", name: "{{ car.name }}" },
+        {% endfor %}
+    ];
+    
+    // Показываем dropdown при фокусе
     input.addEventListener('focus', () => {
+        updateDropdown();
         dropdown.style.display = 'block';
     });
     
+    // Скрываем dropdown при потере фокуса (с задержкой для клика)
     input.addEventListener('blur', () => {
         setTimeout(() => dropdown.style.display = 'none', 200);
     });
     
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', () => {
-            input.value = item.getAttribute('data-value');
-            dropdown.style.display = 'none';
-        });
+    // Фильтрация списка при вводе
+    input.addEventListener('input', () => {
+        updateDropdown();
     });
+    
+    // Обновление списка в dropdown
+    function updateDropdown() {
+        const searchText = input.value.toLowerCase();
+        const filteredCars = cars.filter(car => 
+            car.name.toLowerCase().includes(searchText)
+        );
+        
+        dropdown.innerHTML = filteredCars.map(car => `
+            <div class="dropdown-item" 
+                 data-value="${car.name}" 
+                 data-id="${car.id}">
+                ${car.name}
+            </div>
+        `).join('');
+    
+        // Обработка клика по элементу
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Предотвращаем blur input
+                input.value = item.getAttribute('data-value');
+                dropdown.style.display = 'none';
+            });
+        });
+    }
 
 
         
