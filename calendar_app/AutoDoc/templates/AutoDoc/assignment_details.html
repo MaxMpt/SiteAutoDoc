@@ -923,10 +923,7 @@
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
             <div class="d-flex align-items-center gap-2 w-100">
-                <div style="position: relative;">
-                    <input type="text" id="workSearch" class="form-control" placeholder="Выберите машину">
-                    <div id="workList" class="suggestions-box"></div>
-                </div>
+                <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
                     {% for person in persons %}
@@ -978,42 +975,6 @@
     document.addEventListener('click', function(e) {
         if (!listBox.contains(e.target) && e.target !== input) {
             listBox.style.display = 'none';
-        }
-    });
-
-        const cars = [
-        {% for car in cars %}
-            { id: "{{ car.id }}", name: "{{ car.name }}" },
-        {% endfor %}
-    ];
-
-    const input_w = document.getElementById('workSearch');
-    const listBox_w = document.getElementById('workList');
-
-    input.addEventListener('input', function() {
-        const value = this.value.toLowerCase();
-        listBox_w.innerHTML = '';
-        const filtered = works.filter(work => work.name.toLowerCase().includes(value));
-
-        filtered.slice(0, 50).forEach(work => { // ограничим до 50 найденных
-            const item = document.createElement('div');
-            item.className = 'suggestion-item';
-            item.textContent = work.name;
-            item.dataset.id = work.id;
-            item.addEventListener('click', () => {
-                input_w.value = work.name;
-                listBox_w.style.display = 'none';
-                // Тут можно записать car.id в скрытое поле, если нужно
-            });
-            listBox_w.appendChild(item);
-        });
-
-        listBox_w.style.display = filtered.length ? 'block' : 'none';
-    });
-
-    document.addEventListener('click', function(e) {
-        if (!listBox_w.contains(e.target) && e.target !== input) {
-            listBox_w.style.display = 'none';
         }
     });
         
