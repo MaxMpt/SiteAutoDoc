@@ -843,11 +843,12 @@
 
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label for="edit_car_id" class="form-label">Машина</label>
-                             <div style="position: relative;">
-                                    <input type="text" id="edit_car_id" class="form-control" placeholder="Выберите машину">
-                                    <div id="carList" class="suggestions-box"></div>
-                             </div>
+                            <label for="edit_car_search" class="form-label">Машина</label>
+                            <div style="position: relative;">
+                                <input type="text" id="edit_car_search" class="form-control" placeholder="Выберите машину">
+                                <div id="edit_car_list" class="suggestions-box"></div>
+                                <input type="hidden" id="edit_car_id" name="car_id">
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label for="edit_car_number" class="form-label">Номер машины</label>
@@ -1215,81 +1216,114 @@
         };
 
         window.openEditModal = function(assignmentId) {
-        fetch(`/get-assignment/${assignmentId}/`)
-            .then(response => {
-                if (!response.ok) throw new Error('Ошибка загрузки данных');
-                return response.json();
-            })
-            .then(data => {
-                console.log('Полученные данные:', data);
-    
-                // Заполняем поля формы
-                document.getElementById('edit_assignment_id').value = data.id || '';
-                document.getElementById('edit_date').value = data.date || '';
-                
-                // Устанавливаем значения и data-id для полей с datalist
-                const editCarId = document.getElementById('edit_car_id');
-                editCarId.value = data.car?.name || '';
-                editCarId.setAttribute('data-id', data.car?.id || '');
-                
-                document.getElementById('edit_car_number').value = data.car_number || '';
-                document.getElementById('edit_vin').value = data.vin || '';
-                
-                const editColorId = document.getElementById('edit_color_id');
-                editColorId.value = data.color?.name || '';
-                editColorId.setAttribute('data-id', data.color?.id || '');
-                
-                const editPersonId = document.getElementById('edit_person_id');
-                editPersonId.value = data.person?.full_name || '';
-                editPersonId.setAttribute('data-id', data.person?.id || '');
-                
-                document.getElementById('edit_description').value = data.description || '';
-    
-                // Устанавливаем дату и время
-                const dateObj = new Date(data.date);
-                document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
-                document.getElementById('edit_hour').value = dateObj.getHours() || 0;
-                document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-    
-                // Заполняем работы
-                const workItemsContainer = document.getElementById('editWorkItems');
-                workItemsContainer.innerHTML = '';
-                
-                (data.work_assignment_works || []).forEach(work => {
-                    const workTemplate = document.getElementById('editWorkTemplate');
-                    if (workTemplate) {
-                        const workClone = workTemplate.content.cloneNode(true);
-                        const workInput = workClone.querySelector('.edit-work-id');
-                        const employeeSelect = workClone.querySelector('.edit-work-employee');
-    
-                        workInput.value = work.work?.name || '';
-                        workInput.setAttribute('data-id', work.work_id || '');
-                        employeeSelect.value = work.executor_id || '';
-    
-                        // Добавляем скрытое поле для статуса работы
-                        const statusInput = document.createElement('input');
-                        statusInput.type = 'hidden';
-                        statusInput.className = 'edit-work-status';
-                        statusInput.name = 'work_statuses[]';
-                        statusInput.value = work.status ? '1' : '0';
-    
-                        workClone.querySelector('.d-flex').appendChild(statusInput);
-                        workItemsContainer.appendChild(workClone);
-                    }
+    fetch(`/get-assignment/${assignmentId}/`)
+        .then(response => {
+            if (!response.ok) throw new Error('Ошибка загрузки данных');
+            return response.json();
+        })
+        .then(data => {
+            console.log('Полученные данные:', data);
+
+            // Заполняем поля формы
+            document.getElementById('edit_assignment_id').value = data.id || '';
+            document.getElementById('edit_date').value = data.date || '';
+            
+            // Устанавливаем значения для поля машины
+            const editCarSearch = document.getElementById('edit_car_search');
+            const editCarId = document.getElementById('edit_car_id');
+            
+            editCarSearch.value = data.car?.name || '';
+            editCarId.value = data.car?.id || '';
+            
+            // Инициализация выпадающего списка для машин
+            const editCarList = document.getElementById('edit_car_list');
+            
+            editCarSearch.addEventListener('input', function() {
+                const value = this.value.toLowerCase();
+                editCarList.innerHTML = '';
+                const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
+
+                filtered.slice(0, 50).forEach(car => {
+                    const item = document.createElement('div');
+                    item.className = 'suggestion-item';
+                    item.textContent = car.name;
+                    item.dataset.id = car.id;
+                    item.addEventListener('click', () => {
+                        editCarSearch.value = car.name;
+                        editCarId.value = car.id;
+                        editCarList.style.display = 'none';
+                    });
+                    editCarList.appendChild(item);
                 });
-    
-                // Инициализируем datalist для новых полей
-                initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
-    
-                // Показываем модальное окно
-                const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
-                editModal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Не удалось загрузить данные для редактирования: ' + error.message);
+
+                editCarList.style.display = filtered.length ? 'block' : 'none';
             });
-    };
+
+            document.addEventListener('click', function(e) {
+                if (!editCarList.contains(e.target) && e.target !== editCarSearch) {
+                    editCarList.style.display = 'none';
+                }
+            });
+            
+            // Остальные поля формы
+            document.getElementById('edit_car_number').value = data.car_number || '';
+            document.getElementById('edit_vin').value = data.vin || '';
+            
+            const editColorId = document.getElementById('edit_color_id');
+            editColorId.value = data.color?.name || '';
+            editColorId.setAttribute('data-id', data.color?.id || '');
+            
+            const editPersonId = document.getElementById('edit_person_id');
+            editPersonId.value = data.person?.full_name || '';
+            editPersonId.setAttribute('data-id', data.person?.id || '');
+            
+            document.getElementById('edit_description').value = data.description || '';
+
+            // Устанавливаем дату и время
+            const dateObj = new Date(data.date);
+            document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
+            document.getElementById('edit_hour').value = dateObj.getHours() || 0;
+            document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
+
+            // Заполняем работы
+            const workItemsContainer = document.getElementById('editWorkItems');
+            workItemsContainer.innerHTML = '';
+            
+            (data.work_assignment_works || []).forEach(work => {
+                const workTemplate = document.getElementById('editWorkTemplate');
+                if (workTemplate) {
+                    const workClone = workTemplate.content.cloneNode(true);
+                    const workInput = workClone.querySelector('.edit-work-id');
+                    const employeeSelect = workClone.querySelector('.edit-work-employee');
+
+                    workInput.value = work.work?.name || '';
+                    workInput.setAttribute('data-id', work.work_id || '');
+                    employeeSelect.value = work.executor_id || '';
+
+                    // Добавляем скрытое поле для статуса работы
+                    const statusInput = document.createElement('input');
+                    statusInput.type = 'hidden';
+                    statusInput.className = 'edit-work-status';
+                    statusInput.name = 'work_statuses[]';
+                    statusInput.value = work.status ? '1' : '0';
+
+                    workClone.querySelector('.d-flex').appendChild(statusInput);
+                    workItemsContainer.appendChild(workClone);
+                }
+            });
+
+            // Инициализируем datalist для новых полей
+            initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
+
+            // Показываем модальное окно
+            const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
+            editModal.show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Не удалось загрузить данные для редактирования: ' + error.message);
+        });
+};
 
         document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
         e.preventDefault();
@@ -1321,7 +1355,7 @@
                 date: document.getElementById('edit_date_picker').value + 'T' +
                      String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
                      String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
-                car_id: document.getElementById('edit_car_id').getAttribute('data-id'),
+                car_id: document.getElementById('edit_car_id').value,
                 car_number: document.getElementById('edit_car_number').value,
                 vin: document.getElementById('edit_vin').value,
                 color_id: document.getElementById('edit_color_id').getAttribute('data-id'),
