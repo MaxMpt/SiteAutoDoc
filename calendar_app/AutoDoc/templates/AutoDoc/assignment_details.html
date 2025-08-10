@@ -813,96 +813,96 @@
     </div>
 
     <div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editAssignmentForm">
-                        <input type="hidden" id="edit_assignment_id" name="assignment_id">
-                        <input type="hidden" id="edit_date" name="date">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAssignmentForm">
+                    <input type="hidden" id="edit_assignment_id" name="assignment_id">
+                    <input type="hidden" id="edit_date" name="date">
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label for="edit_car_id" class="form-label">Машина</label>
-                                <input type="text" class="form-control" id="car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
-                                <datalist id="carOptions">
-                                    {% for car in cars %}
-                                        <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="edit_car_id" class="form-label">Машина</label>
+                            <input type="text" class="form-control" id="edit_car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
+                            <datalist id="carOptions">
+                                {% for car in cars %}
+                                    <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_car_number" class="form-label">Номер машины</label>
+                            <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_vin" class="form-label">VIN</label>
+                            <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_color_id" class="form-label">Цвет</label>
+                            <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                            <datalist id="colorOptions">
+                                {% for color in colors %}
+                                    <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_person_id" class="form-label">Сотрудник</label>
+                            <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
+                            <datalist id="personOptions">
+                                {% for person in persons %}
+                                    <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit_description" class="form-label">Описание</label>
+                            <textarea class="form-control" id="edit_description" name="description" rows="2" cols="50"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Дата и время</label>
+                            <div class="d-flex gap-2">
+                                <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
+                                <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
+                                    {% for h in hours %}
+                                        <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
                                     {% endfor %}
-                                </datalist>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="edit_car_number" class="form-label">Номер машины</label>
-                                <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="edit_vin" class="form-label">VIN</label>
-                                <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="edit_color_id" class="form-label">Цвет</label>
-                                <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
-                                <datalist id="colorOptions">
-                                    {% for color in colors %}
-                                        <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
+                                </select>
+                                <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
+                                    {% for m in minutes %}
+                                        <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
                                     {% endfor %}
-                                </datalist>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="edit_person_id" class="form-label">Сотрудник</label>
-                                <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
-                                <datalist id="personOptions">
-                                    {% for person in persons %}
-                                        <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
-                                    {% endfor %}
-                                </datalist>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="edit_description" class="form-label">Описание</label>
-                                <textarea class="form-control" id="edit_description" name="description" rows="2" cols="50"></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Дата и время</label>
-                                <div class="d-flex gap-2">
-                                    <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
-                                    <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
-                                        {% for h in hours %}
-                                            <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
-                                        {% for m in minutes %}
-                                            <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
+                                </select>
                             </div>
                         </div>
+                    </div>
 
-                        <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
-                            <i class="fas fa-tasks me-2"></i>Работы
-                        </h6>
+                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
+                        <i class="fas fa-tasks me-2"></i>Работы
+                    </h6>
 
-                        <div id="editWorkItems" class="mb-4">
-                            <!-- Работы будут добавляться динамически -->
-                        </div>
+                    <div id="editWorkItems" class="mb-4">
+                        <!-- Работы будут добавляться динамически -->
+                    </div>
 
-                        <button type="button" class="btn btn-primary mb-3" id="addEditWork">
-                            <i class="fas fa-plus me-2"></i>Добавить работу
-                        </button>
+                    <button type="button" class="btn btn-primary mb-3" id="addEditWork">
+                        <i class="fas fa-plus me-2"></i>Добавить работу
+                    </button>
 
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
-                            <button type="submit" class="btn btn-success">Сохранить изменения</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Шаблон для динамического добавления работ -->
     <template id="editWorkTemplate">
@@ -1159,73 +1159,73 @@
         };
 
         window.openEditModal = function(assignmentId) {
-            fetch(`/get-assignment/${assignmentId}/`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Ошибка загрузки данных');
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Полученные данные:', data);
-
-                    const modalElement = document.getElementById('editAssignmentModal');
-                    if (!modalElement) {
-                        console.error('Модальное окно #editAssignmentModal не найдено');
-                        return;
-                    }
-
-                    document.getElementById('edit_assignment_id').value = data.id || '';
-                    document.getElementById('edit_date').value = data.date || '';
-                    document.getElementById('edit_car_id').value = data.car?.name || '';
-                    document.getElementById('edit_car_id').setAttribute('data-id', data.car?.id || '');
-                    document.getElementById('edit_car_number').value = data.car_number || '';
-                    document.getElementById('edit_vin').value = data.vin || '';
-                    document.getElementById('edit_color_id').value = data.color?.name || '';
-                    document.getElementById('edit_color_id').setAttribute('data-id', data.color?.id || '');
-                    document.getElementById('edit_person_id').value = data.person?.full_name || '';
-                    document.getElementById('edit_person_id').setAttribute('data-id', data.person?.id || '');
-                    document.getElementById('edit_description').value = data.description || '';
-
-                    const dateObj = new Date(data.date);
-                    document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
-                    document.getElementById('edit_hour').value = dateObj.getHours() || 0;
-                    document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-
-                    const workItemsContainer = document.getElementById('editWorkItems');
-                    workItemsContainer.innerHTML = '';
+        fetch(`/get-assignment/${assignmentId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Ошибка загрузки данных');
+                return response.json();
+            })
+            .then(data => {
+                console.log('Полученные данные:', data);
+    
+                // Заполняем поля формы
+                document.getElementById('edit_assignment_id').value = data.id || '';
+                document.getElementById('edit_date').value = data.date || '';
+                
+                // Устанавливаем значения и data-id для полей с datalist
+                const editCarId = document.getElementById('edit_car_id');
+                editCarId.value = data.car?.name || '';
+                editCarId.setAttribute('data-id', data.car?.id || '');
+                
+                document.getElementById('edit_car_number').value = data.car_number || '';
+                document.getElementById('edit_vin').value = data.vin || '';
+                
+                const editColorId = document.getElementById('edit_color_id');
+                editColorId.value = data.color?.name || '';
+                editColorId.setAttribute('data-id', data.color?.id || '');
+                
+                const editPersonId = document.getElementById('edit_person_id');
+                editPersonId.value = data.person?.full_name || '';
+                editPersonId.setAttribute('data-id', data.person?.id || '');
+                
+                document.getElementById('edit_description').value = data.description || '';
+    
+                // Устанавливаем дату и время
+                const dateObj = new Date(data.date);
+                document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
+                document.getElementById('edit_hour').value = dateObj.getHours() || 0;
+                document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
+    
+                // Заполняем работы
+                const workItemsContainer = document.getElementById('editWorkItems');
+                workItemsContainer.innerHTML = '';
+                
+                (data.work_assignment_works || []).forEach(work => {
                     const workTemplate = document.getElementById('editWorkTemplate');
                     if (workTemplate) {
-                        (data.work_assignment_works || []).forEach(work => {
-                            const workClone = workTemplate.content.cloneNode(true);
-                            const workInput = workClone.querySelector('.edit-work-id');
-                            const employeeSelect = workClone.querySelector('.edit-work-employee');
-                            const statusCheckbox = workClone.querySelector('.edit-work-status');
-
-                            workInput.value = work.work?.name || '';
-                            workInput.setAttribute('data-id', work.work_id || '');
-                            employeeSelect.value = work.executor_id || '';
-
-                            // Добавляем скрытое поле для статуса работы
-                            const statusInput = document.createElement('input');
-                            statusInput.type = 'hidden';
-                            statusInput.className = 'edit-work-status';
-                            statusInput.name = 'work_statuses[]';
-                            statusInput.value = work.status ? '1' : '0';
-
-                            workClone.querySelector('.d-flex').appendChild(statusInput);
-                            workItemsContainer.appendChild(workClone);
-                        });
-                    } else {
-                        console.error('Шаблон #editWorkTemplate не найден');
+                        const workClone = workTemplate.content.cloneNode(true);
+                        const workInput = workClone.querySelector('.edit-work-id');
+                        const employeeSelect = workClone.querySelector('.edit-work-employee');
+    
+                        workInput.value = work.work?.name || '';
+                        workInput.setAttribute('data-id', work.work_id || '');
+                        employeeSelect.value = work.executor_id || '';
+    
+                        workItemsContainer.appendChild(workClone);
                     }
-
-                    const editModal = new bootstrap.Modal(modalElement, { backdrop: 'static' });
-                    editModal.show();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Не удалось загрузить данные для редактирования: ' + error.message);
                 });
-        };
+    
+                // Инициализируем datalist для новых полей
+                initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
+    
+                // Показываем модальное окно
+                const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
+                editModal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Не удалось загрузить данные для редактирования: ' + error.message);
+            });
+    };
 
         document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
