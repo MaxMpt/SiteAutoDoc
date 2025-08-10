@@ -136,6 +136,23 @@ def assignment_details_view(request, year, month, day):
 
             for assignment in assignments:
                 wa_works = get_api_data(f"work-assignment-works?work_assignment_id={assignment['id']}")
+
+                # Группируем работы по исполнителям
+                works_by_executor = {}
+                for w in wa_works:
+                    executor_id = w['executor_id']
+                    if executor_id not in works_by_executor:
+                        works_by_executor[executor_id] = {
+                            'employee_id': executor_id,
+                            'employee_name': next((p['full_name'] for p in persons if p['id'] == executor_id), 'Не назначен'),
+                            'works': []
+                        }
+                    works_by_executor[executor_id]['works'].append({
+                        'work_id': w['work_id'],
+                        'work_name': next((wrk['name'] for wrk in works if wrk['id'] == w['work_id']), 'Неизвестная работа'),
+                        'status': w['status']
+                    })
+
                 works_for_day.append({
                     'id': assignment['id'],
                     'time': datetime.fromisoformat(assignment['date']).strftime('%H:%M'),
@@ -145,16 +162,7 @@ def assignment_details_view(request, year, month, day):
                     'color_name': assignment['color']['name'] if assignment.get('color') else 'Не указано',
                     'person_name': assignment['person']['full_name'] if assignment.get('person') else 'Не указан',
                     'description': assignment.get('description', ''),
-                    'works': [
-                        {
-                            'work_id': w['work_id'],
-                            'work_name': next((wrk['name'] for wrk in works if wrk['id'] == w['work_id']), 'Неизвестная работа'),
-                            'employee_id': w['executor_id'],
-                            'employee_name': next((p['full_name'] for p in persons if p['id'] == w['executor_id']), 'Не назначен'),
-                            'status': w['status']
-                        }
-                        for w in wa_works
-                    ]
+                    'works': list(works_by_executor.values())  # Здесь список с исполнителями и их работами
                 })
 
         context = {
@@ -172,6 +180,7 @@ def assignment_details_view(request, year, month, day):
     except Exception as e:
         logger.error(f"Error in assignment_details_view: {e}")
         return JsonResponse({'error': str(e)}, status=500)
+
 
 
 
