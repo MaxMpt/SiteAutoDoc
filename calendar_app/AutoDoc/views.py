@@ -123,6 +123,7 @@ def safe_set_locale():
 
 
     # Остальной код вашего view
+from collections import defaultdict
 
 def assignment_details_view(request, year, month, day):
     try:
