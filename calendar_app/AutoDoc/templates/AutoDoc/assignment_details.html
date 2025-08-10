@@ -493,29 +493,41 @@
                 font-size: 16px;
             }
         }
-        
 
+        /* Стили для выпадающего списка */
         .suggestions-box {
             position: absolute;
-            top: 100%; /* Position below the input */
+            top: 100%;
             left: 0;
             border: 1px solid #ccc;
             background: white;
             max-height: 150px;
             overflow-y: auto;
-            width: calc(100% - 170px); /* Match input width, accounting for select and button */
+            width: calc(100% - 170px); /* Учитываем ширину select и кнопки */
             z-index: 1000;
             display: none;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        @media (min-width: 576px) {
-            .suggestions-box {
-                width: calc(100% - 200px); /* Adjust for larger screens */
-            }
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
         }
 
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+            color: var(--dark-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        @media (min-width: 576px) {
+            .suggestions-box {
+                width: calc(100% - 200px); /* Адаптация для больших экранов */
+            }
+        }
 
     </style>
 </head>
@@ -542,11 +554,9 @@
         {% if assignments %}
             <div class="columns-container">
                 {% for ag in assignments %}
-                    {# Если текущий элемент — группа (есть поле assignments) #}
                     {% if ag.assignments %}
                         <div class="employee-column">
                             <div class="employee-header">{{ ag.person_name|default:"Не указан" }}</div>
-
                             {% for assignment in ag.assignments %}
                                 <div class="assignment-card">
                                     <div class="assignment-header">
@@ -587,7 +597,7 @@
                                         <i class="fas fa-tasks me-2"></i>Работы:
                                     </h6>
 
-                                   <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
+                                    <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
                                         <ul class="work-list">
                                             {% for executor in assignment.works %}
                                                 {% for work in executor.works %}
@@ -623,13 +633,9 @@
                                 </div>
                             {% endfor %}
                         </div>
-
-                    {# Иначе: элемент — одиночное назначение (flat list) #}
                     {% else %}
-                        {% comment %} Здесь ag — само назначение {% endcomment %}
                         <div class="employee-column">
                             <div class="employee-header">{{ ag.person_name|default:"Не указан" }}</div>
-
                             <div class="assignment-card">
                                 <div class="assignment-header">
                                     <div class="car-info">
@@ -696,7 +702,6 @@
                                         <button type="button" class="btn btn-primary btn-sm" onclick="openEditModal({{ ag.id }})" title="Редактировать запись">
                                             <i class="fas fa-edit me-1"></i> Изменить
                                         </button>
-
                                         <button type="button" class="btn btn-success btn-sm" onclick="saveWorkStatus({{ ag.id }})">
                                             <i class="fas fa-save me-1"></i> Сохранить
                                         </button>
@@ -793,24 +798,24 @@
                             <i class="fas fa-tasks me-2"></i>Работы
                         </h6>
 
-                       <div id="workItems">
-                        <div class="work-input-group mb-3">
-                            <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
-                                <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
-                                <div class="suggestions-box" id="workList_work_id_0"></div>
-                                <select class="form-select work-employee-select" name="work_employees[]" required>
-                                    <option value="">Выберите сотрудника</option>
-                                    {% for person in persons %}
-                                        <option value="{{ person.id }}">{{ person.full_name }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
-                                <button type="button" class="btn btn-danger remove-work-btn">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                        <div id="workItems">
+                            <div class="work-input-group mb-3">
+                                <div class="d-flex align-items-center gap-2 w-100" style="position: relative;">
+                                    <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
+                                    <div class="suggestions-box" id="workList_work_id_0"></div>
+                                    <select class="form-select work-employee-select" name="work_employees[]" required>
+                                        <option value="">Выберите сотрудника</option>
+                                        {% for person in persons %}
+                                            <option value="{{ person.id }}">{{ person.full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback">Пожалуйста, выберите исполнителя</div>
+                                    <button type="button" class="btn btn-danger remove-work-btn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
                         <datalist id="workOptions">
                             {% for work in works %}
@@ -833,95 +838,96 @@
     </div>
 
     <div class="modal fade" id="editAssignmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="editAssignmentForm">
-                    <input type="hidden" id="edit_assignment_id" name="assignment_id">
-                    <input type="hidden" id="edit_date" name="date">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Редактировать запись</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAssignmentForm">
+                        <input type="hidden" id="edit_assignment_id" name="assignment_id">
+                        <input type="hidden" id="edit_date" name="date">
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="edit_car_search" class="form-label">Машина</label>
-                            <div style="position: relative;">
-                                <input type="text" id="edit_car_search" class="form-control" placeholder="Выберите машину">
-                                <div id="edit_car_list" class="suggestions-box"></div>
-                                <input type="hidden" id="edit_car_id" name="car_id">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="edit_car_search" class="form-label">Машина</label>
+                                <div style="position: relative;">
+                                    <input type="text" id="edit_car_search" class="form-control" placeholder="Выберите машину">
+                                    <div id="edit_car_list" class="suggestions-box"></div>
+                                    <input type="hidden" id="edit_car_id" name="car_id">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_car_number" class="form-label">Номер машины</label>
+                                <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_vin" class="form-label">VIN</label>
+                                <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_color_id" class="form-label">Цвет</label>
+                                <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <datalist id="colorOptions">
+                                    {% for color in colors %}
+                                        <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_person_id" class="form-label">Сотрудник</label>
+                                <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
+                                <datalist id="personOptions">
+                                    {% for person in persons %}
+                                        <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit_description" class="form-label">Описание</label>
+                                <textarea class="form-control" id="edit_description" name="description" rows="2" cols="50"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Дата и время</label>
+                                <div class="d-flex gap-2">
+                                    <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
+                                    <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
+                                        {% for h in hours %}
+                                            <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
+                                        {% for m in minutes %}
+                                            <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="edit_car_number" class="form-label">Номер машины</label>
-                            <input type="text" class="form-control" id="edit_car_number" name="car_number" placeholder="Введите номер машины">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_vin" class="form-label">VIN</label>
-                            <input type="text" class="form-control" id="edit_vin" name="vin" placeholder="Введите VIN">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_color_id" class="form-label">Цвет</label>
-                            <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
-                            <datalist id="colorOptions">
-                                {% for color in colors %}
-                                    <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_person_id" class="form-label">Сотрудник</label>
-                            <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
-                            <datalist id="personOptions">
-                                {% for person in persons %}
-                                    <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
-                                {% endfor %}
-                            </datalist>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="edit_description" class="form-label">Описание</label>
-                            <textarea class="form-control" id="edit_description" name="description" rows="2" cols="50"></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Дата и время</label>
-                            <div class="d-flex gap-2">
-                                <input type="date" class="form-control" id="edit_date_picker" name="date_picker">
-                                <select class="form-select" id="edit_hour" name="hour" style="width: 80px;">
-                                    {% for h in hours %}
-                                        <option value="{{ h }}">{{ h|stringformat:"02d" }}</option>
-                                    {% endfor %}
-                                </select>
-                                <select class="form-select" id="edit_minute" name="minute" style="width: 80px;">
-                                    {% for m in minutes %}
-                                        <option value="{{ m }}">{{ m|stringformat:"02d" }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
 
-                    <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
-                        <i class="fas fa-tasks me-2"></i>Работы
-                    </h6>
+                        <h6 class="mb-3" style="color: var(--primary-color); font-weight: 600;">
+                            <i class="fas fa-tasks me-2"></i>Работы
+                        </h6>
 
-                    <div id="editWorkItems" class="mb-4">
-                        <!-- Работы будут добавляться динамически -->
-                    </div>
+                        <div id="editWorkItems" class="mb-4">
+                            <!-- Работы будут добавляться динамически -->
+                        </div>
 
-                    <button type="button" class="btn btn-primary mb-3" id="addEditWork">
-                        <i class="fas fa-plus me-2"></i>Добавить работу
-                    </button>
+                        <button type="button" class="btn btn-primary mb-3" id="addEditWork">
+                            <i class="fas fa-plus me-2"></i>Добавить работу
+                        </button>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
-                        <button type="submit" class="btn btn-success">Сохранить изменения</button>
-                    </div>
-                </form>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Отмена</button>
+                            <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
     <!-- Шаблон для динамического добавления работ -->
     <template id="editWorkTemplate">
         <div class="work-input-group mb-3">
@@ -951,26 +957,26 @@
                 { id: "{{ car.id }}", name: "{{ car.name }}" },
             {% endfor %}
         ];
-        
+
         const works = [
             {% for work in works %}
                 { id: "{{ work.id }}", name: "{{ work.name }}" },
             {% endfor %}
         ];
-        
+
         document.addEventListener('DOMContentLoaded', function() {
             let workCount = 1;
             const addWorkButton = document.getElementById('addWork');
             const workItems = document.getElementById('workItems');
             const createForm = document.getElementById('createAssignmentForm');
-        
+
             // Initialize car search dropdown
             function initCarSearch(input, listBox) {
                 input.addEventListener('input', function() {
                     const value = this.value.toLowerCase();
                     listBox.innerHTML = '';
                     const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
-        
+
                     filtered.slice(0, 50).forEach(car => {
                         const item = document.createElement('div');
                         item.className = 'suggestion-item';
@@ -980,27 +986,29 @@
                             input.value = car.name;
                             input.dataset.id = car.id;
                             listBox.style.display = 'none';
+                            const hiddenInput = input.parentElement.querySelector('input[type="hidden"]');
+                            if (hiddenInput) hiddenInput.value = car.id;
                         });
                         listBox.appendChild(item);
                     });
-        
+
                     listBox.style.display = filtered.length ? 'block' : 'none';
                 });
-        
+
                 document.addEventListener('click', function(e) {
                     if (!listBox.contains(e.target) && e.target !== input) {
                         listBox.style.display = 'none';
                     }
                 });
             }
-        
+
             // Initialize work search dropdown
             function initWorkSearch(input, listBox) {
                 input.addEventListener('input', function() {
                     const value = this.value.toLowerCase();
                     listBox.innerHTML = '';
                     const filtered = works.filter(work => work.name.toLowerCase().includes(value));
-        
+
                     filtered.slice(0, 50).forEach(work => {
                         const item = document.createElement('div');
                         item.className = 'suggestion-item';
@@ -1014,65 +1022,61 @@
                         });
                         listBox.appendChild(item);
                     });
-        
+
                     listBox.style.display = filtered.length ? 'block' : 'none';
                 });
-        
+
                 document.addEventListener('click', function(e) {
                     if (!listBox.contains(e.target) && e.target !== input) {
                         listBox.style.display = 'none';
                     }
                 });
             }
-        
+
             // Initialize car search for create modal
             const carInput = document.getElementById('carSearch');
             const carListBox = document.getElementById('carList');
             if (carInput && carListBox) {
                 initCarSearch(carInput, carListBox);
             }
-        
+
             // Initialize car search for edit modal
             const editCarInput = document.getElementById('edit_car_search');
             const editCarListBox = document.getElementById('edit_car_list');
             if (editCarInput && editCarListBox) {
                 initCarSearch(editCarInput, editCarListBox);
             }
-        
+
             // Initialize work search for create modal
             function initWorkInputs() {
                 document.querySelectorAll('#workItems input[list="workOptions"]').forEach(input => {
-                    // Check if suggestion box already exists to prevent duplicates
-                    let listBox = document.getElementById(`workList_${input.id}`);
-                    if (!listBox) {
+                    let listBox = input.nextElementSibling;
+                    if (!listBox || !listBox.classList.contains('suggestions-box')) {
                         listBox = document.createElement('div');
                         listBox.className = 'suggestions-box';
                         listBox.id = `workList_${input.id}`;
-                        input.parentElement.style.position = 'relative';
-                        input.parentElement.appendChild(listBox);
+                        input.parentElement.insertBefore(listBox, input.nextElementSibling);
                         initWorkSearch(input, listBox);
                     }
                 });
             }
-        
+
             // Initialize work search for edit modal
             function initEditWorkInputs() {
                 document.querySelectorAll('#editWorkItems input[list="workOptions"]').forEach(input => {
-                    // Check if suggestion box already exists to prevent duplicates
-                    let listBox = document.getElementById(`editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`);
-                    if (!listBox) {
+                    let listBox = input.nextElementSibling;
+                    if (!listBox || !listBox.classList.contains('suggestions-box')) {
                         listBox = document.createElement('div');
                         listBox.className = 'suggestions-box';
                         listBox.id = `editWorkList_${input.id || Math.random().toString(36).substr(2, 9)}`;
-                        input.parentElement.style.position = 'relative';
-                        input.parentElement.appendChild(listBox);
+                        input.parentElement.insertBefore(listBox, input.nextElementSibling);
                         initWorkSearch(input, listBox);
                     }
                 });
             }
-        
+
             initWorkInputs();
-        
+
             window.deleteAssignment = function(assignmentId) {
                 if (confirm('Вы уверены, что хотите удалить эту запись?')) {
                     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -1101,14 +1105,14 @@
                     });
                 }
             };
-        
+
             function updateDataId(input) {
                 const datalistId = input.getAttribute('list');
                 if (!datalistId) return;
-        
+
                 const datalist = document.getElementById(datalistId);
                 if (!datalist) return;
-        
+
                 const options = datalist.querySelectorAll('option');
                 for (let option of options) {
                     if (option.value === input.value) {
@@ -1118,7 +1122,7 @@
                 }
                 input.setAttribute('data-id', '');
             }
-        
+
             function initDatalistInputs(inputs) {
                 inputs.forEach(input => {
                     input.addEventListener('input', () => updateDataId(input));
@@ -1126,9 +1130,9 @@
                     if (input.value) updateDataId(input);
                 });
             }
-        
+
             initDatalistInputs(document.querySelectorAll('input[list]'));
-        
+
             addWorkButton.addEventListener('click', function() {
                 if (workCount < 100) {
                     const newWorkItem = document.createElement('div');
@@ -1152,20 +1156,20 @@
                     workItems.appendChild(newWorkItem);
                     initWorkSearch(document.getElementById(`work_id_${workCount}`), document.getElementById(`workList_work_id_${workCount}`));
                     workCount++;
-        
+
                     document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
                     initDatalistInputs([document.getElementById(`work_id_${workCount-1}`)]);
                 } else {
                     alert('Максимум 100 работ.');
                 }
             });
-        
+
             workItems.addEventListener('click', function(e) {
                 if (e.target.closest('.remove-work-btn')) {
                     const workGroup = e.target.closest('.work-input-group');
                     workGroup.remove();
                     workCount--;
-        
+
                     if (document.querySelectorAll('.work-input-group').length <= 1) {
                         document.querySelectorAll('.remove-work-btn').forEach(btn => {
                             btn.style.display = 'none';
@@ -1173,10 +1177,10 @@
                     }
                 }
             });
-        
+
             createForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-            
+
                 let hasEmptyEmployee = false;
                 document.querySelectorAll('.work-employee-select').forEach(select => {
                     if (!select.value) {
@@ -1186,19 +1190,19 @@
                         select.classList.remove('is-invalid');
                     }
                 });
-            
+
                 if (hasEmptyEmployee) {
                     alert('Пожалуйста, укажите исполнителя для каждой работы');
                     return;
                 }
-            
+
                 let carId = null;
                 const carName = document.getElementById('carSearch').value;
                 const selectedCar = cars.find(car => car.name === carName);
                 if (selectedCar) {
                     carId = selectedCar.id;
                 }
-            
+
                 const formData = {
                     vin: document.getElementById('vin').value,
                     car_id: carId,
@@ -1210,23 +1214,23 @@
                     minute: document.getElementById('minute').value,
                     works: []
                 };
-            
+
                 if (!formData.color_id || !formData.person_id) {
                     alert('Пожалуйста, выберите цвет и сотрудника из списка');
                     return;
                 }
-            
+
                 document.querySelectorAll('input[name="work_ids[]"]').forEach((input, index) => {
                     const workId = input.getAttribute('data-id');
                     const employeeId = document.querySelectorAll('select[name="work_employees[]"]')[index]?.value || null;
                     if (workId) formData.works.push({ work_id: parseInt(workId), executor_id: employeeId ? parseInt(employeeId) : null });
                 });
-            
+
                 if (formData.works.length === 0) {
                     alert('Пожалуйста, добавьте хотя бы одну работу');
                     return;
                 }
-            
+
                 try {
                     const response = await fetch(createForm.action, {
                         method: 'POST',
@@ -1236,7 +1240,7 @@
                         },
                         body: JSON.stringify(formData)
                     });
-            
+
                     const result = await response.json();
                     if (result.success) {
                         const modal = bootstrap.Modal.getInstance(document.getElementById('createAssignmentModal'));
@@ -1250,7 +1254,7 @@
                     alert(`Произошла ошибка: ${error.message || 'Неизвестная ошибка'}`);
                 }
             });
-        
+
             document.getElementById('createAssignmentModal').addEventListener('hidden.bs.modal', function() {
                 createForm.reset();
                 workItems.innerHTML = `
@@ -1264,7 +1268,7 @@
                                     <option value="{{ person.id }}">{{ person.full_name }}</option>
                                 {% endfor %}
                             </select>
-                            <button type="button" class="btn btn-danger remove-work-btn">
+                            <button type="button" class="btn btn-danger remove-work-btn" style="display: none;">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -1277,12 +1281,12 @@
                 initDatalistInputs(document.querySelectorAll('input[list]'));
                 initWorkInputs();
             });
-        
+
             window.saveWorkStatus = function(assignmentId) {
                 const form = document.getElementById(`workStatusForm_${assignmentId}`);
                 const updates = [...form.querySelectorAll('input[name="work_status"]:checked'), ...form.querySelectorAll('input[name="work_status"]:not(:checked)')]
                     .map(checkbox => ({ work_id: parseInt(checkbox.value), status: checkbox.checked }));
-        
+
                 fetch(`/update-work-status/${assignmentId}/`, {
                     method: 'POST',
                     headers: {
@@ -1305,7 +1309,7 @@
                     alert('Произошла ошибка при сохранении');
                 });
             };
-        
+
             window.openEditModal = function(assignmentId) {
                 fetch(`/get-assignment/${assignmentId}/`)
                     .then(response => {
@@ -1314,7 +1318,7 @@
                     })
                     .then(data => {
                         console.log('Полученные данные:', data);
-            
+
                         document.getElementById('edit_assignment_id').value = data.id || '';
                         document.getElementById('edit_date').value = data.date || '';
                         
@@ -1335,15 +1339,15 @@
                         editPersonId.setAttribute('data-id', data.person?.id || '');
                         
                         document.getElementById('edit_description').value = data.description || '';
-            
+
                         const dateObj = new Date(data.date);
                         document.getElementById('edit_date_picker').value = dateObj.toISOString().split('T')[0] || '';
                         document.getElementById('edit_hour').value = dateObj.getHours() || 0;
                         document.getElementById('edit_minute').value = dateObj.getMinutes() || 0;
-            
+
                         const workItemsContainer = document.getElementById('editWorkItems');
                         workItemsContainer.innerHTML = '';
-                        
+
                         (data.work_assignment_works || []).forEach(work => {
                             const workTemplate = document.getElementById('editWorkTemplate');
                             if (workTemplate) {
@@ -1351,20 +1355,24 @@
                                 const workInput = workClone.querySelector('.edit-work-id');
                                 const employeeSelect = workClone.querySelector('.edit-work-employee');
                                 const statusInput = workClone.querySelector('.edit-work-status');
-            
+
                                 workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
                                 workInput.value = work.work?.name || '';
                                 workInput.setAttribute('data-id', work.work_id || '');
                                 employeeSelect.value = work.executor_id || '';
                                 statusInput.value = work.status ? '1' : '0';
-            
+
+                                const listBox = workClone.querySelector('.suggestions-box');
+                                listBox.id = `editWorkList_${workInput.id}`;
+
                                 workItemsContainer.appendChild(workClone);
+                                initWorkSearch(workInput, listBox);
                             }
                         });
-            
+
                         initDatalistInputs(document.querySelectorAll('#editAssignmentModal input[list]'));
                         initEditWorkInputs();
-            
+
                         const editModal = new bootstrap.Modal(document.getElementById('editAssignmentModal'), { backdrop: 'static' });
                         editModal.show();
                     })
@@ -1373,10 +1381,10 @@
                         alert('Не удалось загрузить данные для редактирования: ' + error.message);
                     });
             };
-        
+
             document.getElementById('editAssignmentForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-        
+
                 let hasEmptyEmployee = false;
                 document.querySelectorAll('.edit-work-employee').forEach(select => {
                     if (!select.value) {
@@ -1386,23 +1394,23 @@
                         select.classList.remove('is-invalid');
                     }
                 });
-        
+
                 if (hasEmptyEmployee) {
                     alert('Пожалуйста, укажите исполнителя для каждой работы');
                     return;
                 }
-        
+
                 const form = e.target;
                 const submitBtn = form.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Сохранение...';
-        
+
                 try {
                     const formData = {
                         id: document.getElementById('edit_assignment_id').value,
                         date: document.getElementById('edit_date_picker').value + 'T' +
-                             String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
-                             String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
+                              String(document.getElementById('edit_hour').value).padStart(2, '0') + ':' +
+                              String(document.getElementById('edit_minute').value).padStart(2, '0') + ':00',
                         car_id: document.getElementById('edit_car_id').value,
                         car_number: document.getElementById('edit_car_number').value,
                         vin: document.getElementById('edit_vin').value,
@@ -1411,15 +1419,15 @@
                         description: document.getElementById('edit_description').value,
                         works: []
                     };
-        
+
                     document.querySelectorAll('.edit-work-id').forEach((input, index) => {
                         const workId = input.getAttribute('data-id');
                         const employeeSelect = document.querySelectorAll('.edit-work-employee')[index];
                         const statusInput = document.querySelectorAll('.edit-work-status')[index];
-        
+
                         const employeeId = employeeSelect ? employeeSelect.value : null;
                         const status = statusInput ? statusInput.value === '1' : false;
-        
+
                         if (workId && workId !== '') {
                             formData.works.push({
                                 work_id: parseInt(workId),
@@ -1428,9 +1436,9 @@
                             });
                         }
                     });
-        
+
                     console.log('Отправляемые данные:', formData);
-        
+
                     const response = await fetch('/update-assignment/', {
                         method: 'POST',
                         headers: {
@@ -1439,7 +1447,7 @@
                         },
                         body: JSON.stringify(formData)
                     });
-        
+
                     const result = await response.json();
                     if (response.ok && result.success) {
                         showAlert('Изменения успешно сохранены', 'success');
@@ -1459,7 +1467,7 @@
                     submitBtn.textContent = 'Сохранить изменения';
                 }
             });
-        
+
             function showAlert(message, type) {
                 const alertDiv = document.createElement('div');
                 alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
@@ -1472,7 +1480,7 @@
                     setTimeout(() => alertDiv.remove(), 150);
                 }, 5000);
             }
-        
+
             document.getElementById('addEditWork').addEventListener('click', function() {
                 const workItemsContainer = document.getElementById('editWorkItems');
                 const workTemplate = document.getElementById('editWorkTemplate');
@@ -1480,18 +1488,15 @@
                     const workClone = workTemplate.content.cloneNode(true);
                     const workInput = workClone.querySelector('.edit-work-id');
                     workInput.id = `edit_work_id_${Math.random().toString(36).substr(2, 9)}`;
-                    const listBox = document.createElement('div');
-                    listBox.className = 'suggestions-box';
+                    const listBox = workClone.querySelector('.suggestions-box');
                     listBox.id = `editWorkList_${workInput.id}`;
-                    workClone.querySelector('.d-flex').style.position = 'relative';
-                    workClone.querySelector('.d-flex').insertBefore(listBox, workClone.querySelector('.edit-work-employee'));
                     workItemsContainer.appendChild(workClone);
                     initDatalistInputs([workInput]);
                     initWorkSearch(workInput, listBox);
-                    document.querySelectorAll('.remove-work-btn').forEach(btn => btn.style.display = 'block');
+                    document.querySelectorAll('#editWorkItems .remove-work-btn').forEach(btn => btn.style.display = 'block');
                 }
             });
-        
+
             document.getElementById('editWorkItems').addEventListener('click', function(e) {
                 if (e.target.closest('.remove-work-btn')) {
                     const workGroup = e.target.closest('.work-input-group');
