@@ -566,27 +566,21 @@
                                    <form id="workStatusForm_{{ assignment.id }}" data-assignment-id="{{ assignment.id }}">
                                         <ul class="work-list">
                                             {% for executor in assignment.works %}
-                                                <li>
-                                                    <strong style="font-size: 0.9rem; color: #555;">{{ executor.employee_name }}</strong>
-                                                    <ul>
-                                                        {% for work in executor.works %}
-                                                            <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
-                                                                <div class="work-info">
-                                                                    <input type="checkbox" class="form-check-input custom-checkbox me-2"
-                                                                           id="work_{{ assignment.id }}_{{ work.work_id }}"
-                                                                           name="work_status" value="{{ work.work_id }}"
-                                                                           {% if work.status %}checked{% endif %}>
-                                                                    <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
-                                                                        <span class="work-status {% if work.status %}completed{% endif %}"></span>
-                                                                        <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
-                                                                    </label>
-                                                                </div>
-                                                            </li>
-                                                        {% empty %}
-                                                            <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </li>
+                                                {% for work in executor.works %}
+                                                    <li class="work-item {% if work.status %}completed{% endif %}" data-work-id="{{ work.work_id }}">
+                                                        <div class="work-info">
+                                                            <input type="checkbox" class="form-check-input custom-checkbox me-2"
+                                                                   id="work_{{ assignment.id }}_{{ work.work_id }}"
+                                                                   name="work_status" value="{{ work.work_id }}"
+                                                                   {% if work.status %}checked{% endif %}>
+                                                            <label for="work_{{ assignment.id }}_{{ work.work_id }}" class="form-check-label">
+                                                                <span class="work-status {% if work.status %}completed{% endif %}"></span>
+                                                                <strong style="font-size: 0.9rem;">{{ work.work_name }}</strong>
+                                                            </label>
+                                                        </div>
+                                                        <strong class="text-muted" style="font-size: 0.8rem;">({{ executor.employee_name }})</strong>
+                                                    </li>
+                                                {% endfor %}
                                             {% empty %}
                                                 <li class="text-muted" style="font-size: 0.9rem;">Нет работ</li>
                                             {% endfor %}
