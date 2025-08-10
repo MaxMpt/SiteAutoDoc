@@ -128,12 +128,13 @@ def assignment_details_view(request, year, month, day):
     try:
         safe_set_locale()
         assignments = get_api_data("work-assignments", {'year': year, 'month': month, 'day': day})
-        works_for_day = []
 
         if assignments:
             persons = get_cached_refs()['persons']
             works = get_cached_refs()['works']
 
+            # Сначала подготовим список назначений с работами и исполнителями, сгруппированными внутри каждого assignment
+            prepared_assignments = []
             for assignment in assignments:
                 wa_works = get_api_data(f"work-assignment-works?work_assignment_id={assignment['id']}")
 
@@ -153,24 +154,35 @@ def assignment_details_view(request, year, month, day):
                         'status': w['status']
                     })
 
-                works_for_day.append({
+                prepared_assignments.append({
                     'id': assignment['id'],
                     'time': datetime.fromisoformat(assignment['date']).strftime('%H:%M'),
                     'vin': assignment.get('vin', ''),
                     'car_number': assignment.get('car_number', ''),
                     'car_name': assignment['car']['name'] if assignment.get('car') else 'Не указано',
                     'color_name': assignment['color']['name'] if assignment.get('color') else 'Не указано',
-                    'person_name': assignment['person']['full_name'] if assignment.get('person') else 'Не указан',
                     'description': assignment.get('description', ''),
-                    'works': list(works_by_executor.values())  # Здесь список с исполнителями и их работами
+                    'works': list(works_by_executor.values())
                 })
+
+            # Теперь группируем по person_name
+            grouped = defaultdict(list)
+            for assign, original in zip(prepared_assignments, assignments):
+                # берем имя сотрудника из оригинального assignment (person.full_name)
+                person_name = original['person']['full_name'] if original.get('person') else 'Не указан'
+                grouped[person_name].append(assign)
+
+            assignments_grouped = [{'person_name': person, 'assignments': assigns} for person, assigns in grouped.items()]
+
+        else:
+            assignments_grouped = []
 
         context = {
             'day': day,
             'month': month,
             'month_name': calendar.month_name[month],
             'year': year,
-            'assignments': works_for_day,
+            'assignments': assignments_grouped,
             **get_cached_refs(),
             'hours': list(range(8, 20)),
             'minutes': list(range(0, 60, 5))
