@@ -493,7 +493,26 @@
                 font-size: 16px;
             }
         }
-
+        /* выпадайка */
+        .suggestions-box {
+            position: absolute;
+            border: 1px solid #ccc;
+            background: white;
+            max-height: 150px; /* Высота примерно на 5 элементов */
+            overflow-y: auto;
+            width: 100%;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 8px;
+            cursor: pointer;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
 
 
     </style>
@@ -716,12 +735,10 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label for="car_id" class="form-label">Машина</label>
-                                <input type="text" class="form-control" id="car_id" name="car_id" list="carOptions" placeholder="Выберите машину">
-                                <datalist id="carOptions">
-                                    {% for car in cars %}
-                                        <option value="{{ car.name }}" data-id="{{ car.id }}"></option>
-                                    {% endfor %}
-                                </datalist>
+                                <div style="position: relative;">
+                                    <input type="text" id="carSearch" class="form-control" placeholder="Выберите машину">
+                                    <div id="carList" class="suggestions-box"></div>
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <label for="car_number" class="form-label">Номер машины</label>
@@ -927,7 +944,41 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
     
+    const cars = [
+        {% for car in cars %}
+            { id: "{{ car.id }}", name: "{{ car.name }}" },
+        {% endfor %}
+    ];
 
+    const input = document.getElementById('carSearch');
+    const listBox = document.getElementById('carList');
+
+    input.addEventListener('input', function() {
+        const value = this.value.toLowerCase();
+        listBox.innerHTML = '';
+        const filtered = cars.filter(car => car.name.toLowerCase().includes(value));
+
+        filtered.slice(0, 50).forEach(car => { // ограничим до 50 найденных
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.textContent = car.name;
+            item.dataset.id = car.id;
+            item.addEventListener('click', () => {
+                input.value = car.name;
+                listBox.style.display = 'none';
+                // Тут можно записать car.id в скрытое поле, если нужно
+            });
+            listBox.appendChild(item);
+        });
+
+        listBox.style.display = filtered.length ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!listBox.contains(e.target) && e.target !== input) {
+            listBox.style.display = 'none';
+        }
+    });
         
     document.addEventListener('DOMContentLoaded', function() {
         let workCount = 1;
