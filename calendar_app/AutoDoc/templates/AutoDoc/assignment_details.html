@@ -741,7 +741,7 @@
                                 <label for="person_id" class="form-label">Сотрудник</label>
                                 <input type="text" class="form-control" id="person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
                                 <datalist id="personOptions">
-                                    {% for person in persons_status_true %}
+                                    {% for person in persons %}
                                         <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
                                     {% endfor %}
                                 </datalist>
@@ -778,7 +778,7 @@
                                     <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                                     <select class="form-select work-employee-select" name="work_employees[]" required>
                                         <option value="">Выберите сотрудника</option>
-                                        {% for person in persons_status_true %}
+                                        {% for person in persons %}
                                             <option value="{{ person.id }}">{{ person.full_name }}</option>
                                         {% endfor %}
                                     </select>
@@ -853,7 +853,7 @@
                                 <label for="edit_person_id" class="form-label">Сотрудник</label>
                                 <input type="text" class="form-control" id="edit_person_id" name="person_id" list="personOptions" placeholder="Выберите сотрудника" required>
                                 <datalist id="personOptions">
-                                    {% for person in persons_status_true %}
+                                    {% for person in persons %}
                                         <option value="{{ person.full_name }}" data-id="{{ person.id }}"></option>
                                     {% endfor %}
                                 </datalist>
@@ -910,7 +910,7 @@
                 <input type="text" class="form-control edit-work-id" list="workOptions" placeholder="Выберите работу">
                 <select class="form-select edit-work-employee" required>
                     <option value="">Выберите сотрудника</option>
-                    {% for person in persons_status_true %}
+                    {% for person in persons %}
                         <option value="{{ person.id }}">{{ person.full_name }}</option>
                     {% endfor %}
                 </select>
@@ -997,7 +997,7 @@
                                name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                         <select class="form-select work-employee-select" name="work_employees[]">
                             <option value="">Выберите сотрудника</option>
-                            {% for person in persons_status_true %}
+                            {% for person in persons %}
                                 <option value="{{ person.id }}">{{ person.full_name }}</option>
                             {% endfor %}
                         </select>
@@ -1109,7 +1109,7 @@
                         <input type="text" class="form-control" id="work_id_0" name="work_ids[]" list="workOptions" placeholder="Выберите работу">
                         <select class="form-select work-employee-select" name="work_employees[]">
                             <option value="">Выберите сотрудника</option>
-                            {% for person in persons_status_true %}
+                            {% for person in persons %}
                                 <option value="{{ person.id }}">{{ person.full_name }}</option>
                             {% endfor %}
                         </select>
