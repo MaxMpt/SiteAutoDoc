@@ -744,7 +744,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="color_id" class="form-label">Цвет</label>
-                                <input type="text" id="color_id" class="form-control" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <input type="text" id="color_id" class="form-control" name="color_id" list="colorOptions" placeholder="Выберите цвет">
                                 <datalist id="colorOptions">
                                     {% for color in colors %}
                                         <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
@@ -856,7 +856,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="edit_color_id" class="form-label">Цвет</label>
-                                <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет" required>
+                                <input type="text" class="form-control" id="edit_color_id" name="color_id" list="colorOptions" placeholder="Выберите цвет">
                                 <datalist id="colorOptions">
                                     {% for color in colors %}
                                         <option value="{{ color.name }}" data-id="{{ color.id }}"></option>
