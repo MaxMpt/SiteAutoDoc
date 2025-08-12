@@ -398,7 +398,7 @@ def create_assignment(request, year, month, day):
             logger.info(f"Parsed request data: {data}")
 
             # Валидация обязательных полей
-            required_fields = ['color_id', 'person_id']
+            required_fields = ['person_id']
             for field in required_fields:
                 if field not in data or not data[field]:
                     error_msg = f"Missing required field: {field}"
@@ -417,7 +417,7 @@ def create_assignment(request, year, month, day):
                 'vin': data.get('vin', ''),
                 'car_number': data.get('car_number', ''),
                 'car_id': data.get('car_id'),
-                'color_id': int(data['color_id']),
+                'color_id': data.get('color_id'),
                 'person_id': int(data['person_id']),
                 'description': data.get('description', ''),
                 'works': []
