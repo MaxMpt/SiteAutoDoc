@@ -375,6 +375,7 @@ def delete_assignment(request, assignment_id):
 #             logger.error(f"Error creating assignment: {e}")
 #             return JsonResponse({'error': str(e)}, status=400)
 #     return JsonResponse({'error': 'Метод не разрешен'}, status=405)
+
 @csrf_exempt
 def create_assignment(request, year, month, day):
     if request.method == 'POST':
@@ -417,11 +418,23 @@ def create_assignment(request, year, month, day):
                 'vin': data.get('vin', ''),
                 'car_number': data.get('car_number', ''),
                 'car_id': data.get('car_id'),
-                'color_id': data.get('color_id'),
                 'person_id': int(data['person_id']),
                 'description': data.get('description', ''),
                 'works': []
             }
+
+            # Обработка color_id - преобразуем в int или удаляем если пусто
+            color_id = data.get('color_id')
+            if color_id and color_id != '':
+                try:
+                    assignment_data['color_id'] = int(color_id)
+                except (ValueError, TypeError):
+                    logger.warning(f"Invalid color_id value: {color_id}")
+                    # Удаляем поле если значение невалидное
+                    assignment_data.pop('color_id', None)
+            else:
+                # Полностью удаляем поле если оно пустое
+                assignment_data.pop('color_id', None)
 
             # Обработка работ
             if 'works' in data:
