@@ -157,6 +157,7 @@ def assignment_details_view(request, year, month, day):
                 prepared_assignments.append({
                     'id': assignment['id'],
                     'time': datetime.fromisoformat(assignment['date']).strftime('%H:%M'),
+                    'time_sort': datetime.fromisoformat(assignment['date']).time(),  # Добавляем поле для сортировки
                     'vin': assignment.get('vin', ''),
                     'car_number': assignment.get('car_number', ''),
                     'car_name': assignment['car']['name'] if assignment.get('car') else 'Не указано',
@@ -172,7 +173,15 @@ def assignment_details_view(request, year, month, day):
                 person_name = original['person']['full_name'] if original.get('person') else 'Не указан'
                 grouped[person_name].append(assign)
 
-            assignments_grouped = [{'person_name': person, 'assignments': assigns} for person, assigns in grouped.items()]
+            # Сортируем назначения каждого сотрудника по времени
+            assignments_grouped = []
+            for person, assigns in grouped.items():
+                # Сортируем назначения по времени
+                sorted_assigns = sorted(assigns, key=lambda x: x['time_sort'])
+                assignments_grouped.append({
+                    'person_name': person,
+                    'assignments': sorted_assigns
+                })
 
         else:
             assignments_grouped = []
